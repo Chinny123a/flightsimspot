@@ -2028,6 +2028,54 @@ function App() {
         {currentView === 'mostviewed' && renderMostViewedPage()}
         {currentView === 'trending' && renderTrendingPage()}
 
+        {/* Welcome Message Editor Modal */}
+        {showWelcomeEditor && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4">Edit Welcome Message</h2>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  // For now, just update the display text
+                  // In a real implementation, this would save to database
+                  setShowWelcomeEditor(false);
+                  alert('Welcome message updated! (Note: This is currently display-only. Database storage coming soon!)');
+                }}>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Paragraph 1</label>
+                    <textarea
+                      className="w-full border rounded-lg px-3 py-2 h-32"
+                      defaultValue="Welcome to FlightSimSpot, the premier destination for flight simulation enthusiasts seeking honest, detailed reviews of aircraft for Microsoft Flight Simulator 2024 and 2020. Our mission is simple: to help simmers discover the best aircraft experiences, whether you're searching for study-level commercial jets, authentic general aviation aircraft, or specialised military and helicopter simulations. Every aircraft in our database is carefully reviewed, providing you with genuine insights into flight models, system depth, visual quality, and overall value."
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium mb-2">Paragraph 2</label>
+                    <textarea
+                      className="w-full border rounded-lg px-3 py-2 h-32"
+                      defaultValue="FlightSimSpot aims to catalogue all available aircraft and reviews of both premium payware and exceptional freeware aircraft. As we grow, we're expanding beyond aircraft to include scenery, hardware reviews, and comprehensive flight simulation resources. Whether you're a seasoned virtual aviator or just beginning your flight sim journey, you'll find everything you need to make informed decisions about your next virtual cockpit adventure."
+                    />
+                  </div>
+                  <div className="flex space-x-4">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowWelcomeEditor(false)}
+                      className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Login Prompt Modal */}
         {showLoginPrompt && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
