@@ -191,8 +191,13 @@ async def require_admin(request: Request) -> Dict:
 
 # Sample data initialization with new structure - RESET RATINGS TO 0
 def initialize_sample_data():
-    # Always clear and reinitialize to ensure proper structure
-    aircraft_collection.delete_many({})
+    # ONLY initialize if database is empty (to prevent data loss in production)
+    existing_count = aircraft_collection.count_documents({})
+    if existing_count > 0:
+        print(f"Database already has {existing_count} aircraft - skipping initialization to preserve existing data")
+        return
+    
+    print("Database is empty - initializing with sample data")
     
     sample_aircraft = [
         # Boeing 737-800 variants
