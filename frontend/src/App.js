@@ -20,6 +20,8 @@ function App() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showAircraftForm, setShowAircraftForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showWelcomeEditor, setShowWelcomeEditor] = useState(false);
+  const [welcomeMessage, setWelcomeMessage] = useState('');
   const [archivedAircraft, setArchivedAircraft] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const [userReviews, setUserReviews] = useState([]);
