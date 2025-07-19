@@ -19,9 +19,15 @@ load_dotenv()
 # Initialize FastAPI app
 app = FastAPI(title="Aircraft Review Platform", version="1.0.0")
 
-# Add session middleware with a strong secret key
-SECRET_KEY = "your-super-secret-key-change-in-production-12345"
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, max_age=86400)
+# Add session middleware with production-ready configuration
+SECRET_KEY = os.environ.get('SESSION_SECRET_KEY', 'your-super-secret-key-change-in-production-12345')
+app.add_middleware(
+    SessionMiddleware, 
+    secret_key=SECRET_KEY, 
+    max_age=86400,
+    same_site='none',  # Required for cross-origin requests
+    https_only=True    # Required for production HTTPS
+)
 
 # Enable CORS with specific settings for authentication
 app.add_middleware(
