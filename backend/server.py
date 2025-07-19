@@ -30,7 +30,8 @@ app.add_middleware(
         "https://bab5abbb-d186-43a4-b879-6d8d6da83200.preview.emergentagent.com",  # Development
         "https://flightsimspot.com",  # Production domain
         "https://www.flightsimspot.com",  # Production with www
-        "https://*.vercel.app",  # Vercel deployments
+        "https://flightsimspot.vercel.app",  # Vercel deployment URL
+        "https://flightsimspot-*.vercel.app",  # Any Vercel preview URLs
     ],
     allow_credentials=True,
     allow_methods=["*"],
