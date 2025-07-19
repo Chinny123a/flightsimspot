@@ -26,7 +26,12 @@ app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, max_age=86400)
 # Enable CORS with specific settings for authentication
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://bab5abbb-d186-43a4-b879-6d8d6da83200.preview.emergentagent.com"],
+    allow_origins=[
+        "https://bab5abbb-d186-43a4-b879-6d8d6da83200.preview.emergentagent.com",  # Development
+        "https://flightsimspot.com",  # Production domain
+        "https://www.flightsimspot.com",  # Production with www
+        "https://*.vercel.app",  # Vercel deployments
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
