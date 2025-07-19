@@ -1,0 +1,2219 @@
+import React, { useState, useEffect } from 'react';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import './App.css';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+const GOOGLE_CLIENT_ID = "55543187892-fkk9tafsivb4oil3ppm05i08njcf01bv.apps.googleusercontent.com";
+
+function App() {
+  const [categories, setCategories] = useState({});
+  const [manufacturers, setManufacturers] = useState({});
+  const [simulations, setSimulations] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedManufacturer, setSelectedManufacturer] = useState('');
+  const [selectedAircraft, setSelectedAircraft] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [user, setUser] = useState(null);
+  const [currentView, setCurrentView] = useState('categories'); // 'categories', 'manufacturers', 'simulations', 'aircraft', 'edit'
+  const [sortBy, setSortBy] = useState('rating');
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showAircraftForm, setShowAircraftForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [archivedAircraft, setArchivedAircraft] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [userReviews, setUserReviews] = useState([]);
+  const [stats, setStats] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState('');
+  const [selectedFilterDeveloper, setSelectedFilterDeveloper] = useState('');
+  const [topAircraft, setTopAircraft] = useState([]);
+  const [recentAircraft, setRecentAircraft] = useState([]);
+  const [allAircraft, setAllAircraft] = useState([]);
+  const [analytics, setAnalytics] = useState({
+    most_viewed: [],
+    trending: [],
+    category_analytics: [],
+    total_views: 0
+  });
+  const [developers, setDevelopers] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  
+  const [reviewFormData, setReviewFormData] = useState({
+    title: '',
+    content: '',
+    ratings: {
+      overall: 5,
+      performance: 5,
+      visual_quality: 5,
+      flight_model: 5,
+      systems_accuracy: 5
+    }
+  });
+  
+  const [aircraftFormData, setAircraftFormData] = useState({
+    name: '',
+    developer: '',
+    aircraft_manufacturer: '',
+    aircraft_model: '',
+    variant: '',
+    category: 'Commercial',
+    price_type: 'Paid',
+    price: '',
+    description: '',
+    image_url: '',
+    cockpit_image_url: '',
+    additional_images: [],
+    release_date: '',
+    compatibility: ['MS2024'],
+    download_url: '',
+    developer_website: '',
+    features: []
+  });
+
+  useEffect(() => {
+    if (currentView === 'categories') {
+      fetchCategories();
+    }
+    if (currentView === 'viewall') {
+      fetchAllAircraft();
+    }
+    checkAuthStatus();
+    fetchDevelopers();
+    fetchAllCategories();
+    fetchTopAircraft();
+    fetchRecentAircraft();
+    fetchAnalytics();
+  }, [currentView]);
+
+  const checkAuthStatus = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.user) {
+        setUser(data.user);
+        console.log('User authenticated:', data.user);
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+    }
+  };
+
+  const fetchDevelopers = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/developers`);
+      const data = await response.json();
+      setDevelopers(data);
+    } catch (error) {
+      console.error('Error fetching developers:', error);
+    }
+  };
+
+  const fetchAllCategories = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/categories`);
+      const data = await response.json();
+      setAllCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchTopAircraft = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft?sort_by=rating&limit=10`);
+      const data = await response.json();
+      // Filter and sort by rating, take top 10
+      const sortedAircraft = data
+        .filter(aircraft => aircraft.average_rating > 0)
+        .sort((a, b) => b.average_rating - a.average_rating)
+        .slice(0, 10);
+      setTopAircraft(sortedAircraft);
+    } catch (error) {
+      console.error('Error fetching top aircraft:', error);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    try {
+      const params = new URLSearchParams();
+      params.append('search', searchTerm);
+      if (selectedFilterCategory) params.append('category', selectedFilterCategory);
+      if (selectedFilterDeveloper) params.append('developer', selectedFilterDeveloper);
+      
+      console.log('Searching with params:', params.toString());
+      const response = await fetch(`${BACKEND_URL}/api/aircraft?${params}`);
+      const data = await response.json();
+      
+      console.log('Search results:', data);
+      setSimulations(data);
+      setCurrentView('simulations');
+      setSelectedCategory('Search Results');
+      setSelectedManufacturer(`"${searchTerm}"`);
+    } catch (error) {
+      console.error('Error searching aircraft:', error);
+    }
+  };
+
+  const fetchRecentAircraft = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft`);
+      const data = await response.json();
+      // Sort by creation date and take the 3 most recent
+      const recentAircraft = data
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 3);
+      setRecentAircraft(recentAircraft);
+    } catch (error) {
+      console.error('Error fetching recent aircraft:', error);
+    }
+  };
+
+  const fetchAllAircraft = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft`);
+      const data = await response.json();
+      // Sort by name for consistent display
+      const sortedAircraft = data.sort((a, b) => a.name.localeCompare(b.name));
+      setAllAircraft(sortedAircraft);
+    } catch (error) {
+      console.error('Error fetching all aircraft:', error);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft-analytics`);
+      const data = await response.json();
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    }
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      console.log('Google login attempt with credential:', credentialResponse.credential ? 'present' : 'missing');
+      
+      const response = await fetch(`${BACKEND_URL}/api/auth/google/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          credential: credentialResponse.credential
+        })
+      });
+
+      console.log('Backend response status:', response.status);
+      const data = await response.json();
+      console.log('Backend response data:', data);
+      
+      if (data.status === 'success') {
+        setUser(data.user);
+        setShowLoginPrompt(false);
+        console.log('Login successful:', data.user);
+        alert(`Welcome ${data.user.name}! ${data.user.is_admin ? 'You have admin privileges.' : ''}`);
+      } else {
+        console.error('Login failed:', data);
+        alert(`Login failed: ${data.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert(`Login failed: ${error.message}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      setUser(null);
+      setCurrentView('categories');
+      alert('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const [categoriesRes, statsRes] = await Promise.all([
+        fetch(`${BACKEND_URL}/api/categories-with-counts`),
+        fetch(`${BACKEND_URL}/api/stats`)
+      ]);
+      
+      const categoriesData = await categoriesRes.json();
+      const statsData = await statsRes.json();
+      
+      setCategories(categoriesData);
+      setStats(statsData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleCategorySelect = async (category) => {
+    try {
+      setLoading(true);
+      setSelectedCategory(category);
+      
+      const response = await fetch(`${BACKEND_URL}/api/aircraft-manufacturers/${category}`);
+      const data = await response.json();
+      
+      setManufacturers(data);
+      setCurrentView('manufacturers');
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching manufacturers:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleManufacturerSelect = async (manufacturer) => {
+    try {
+      setLoading(true);
+      setSelectedManufacturer(manufacturer);
+      
+      const response = await fetch(`${BACKEND_URL}/api/simulations/${selectedCategory}/${manufacturer}?sort_by=${sortBy}`);
+      const data = await response.json();
+      
+      setSimulations(data);
+      setCurrentView('simulations');
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching simulations:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleSortChange = async (newSortBy) => {
+    setSortBy(newSortBy);
+    if (currentView === 'simulations') {
+      const response = await fetch(`${BACKEND_URL}/api/simulations/${selectedCategory}/${selectedManufacturer}?sort_by=${newSortBy}`);
+      const data = await response.json();
+      setSimulations(data);
+    }
+  };
+
+  const openAircraftDetails = async (aircraftData) => {
+    setSelectedAircraft(aircraftData);
+    setCurrentView('aircraft');
+    
+    // Track page view
+    try {
+      await fetch(`${BACKEND_URL}/api/aircraft/${aircraftData.id}/view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.log('Error tracking view (non-critical):', error);
+    }
+    
+    // Fetch reviews
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft/${aircraftData.id}/reviews`);
+      const reviewsData = await response.json();
+      setReviews(reviewsData);
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      setReviews([]);
+    }
+  };
+
+  const closeAircraftDetails = () => {
+    setSelectedAircraft(null);
+    setCurrentView('simulations');
+    setShowReviewForm(false);
+  };
+
+  const handleEditAircraft = () => {
+    if (!user?.is_admin || !selectedAircraft) return;
+    
+    setAircraftFormData({
+      name: selectedAircraft.name,
+      developer: selectedAircraft.developer,
+      aircraft_manufacturer: selectedAircraft.aircraft_manufacturer,
+      aircraft_model: selectedAircraft.aircraft_model,
+      variant: selectedAircraft.variant,
+      category: selectedAircraft.category,
+      price_type: selectedAircraft.price_type,
+      price: selectedAircraft.price || '',
+      description: selectedAircraft.description,
+      image_url: selectedAircraft.image_url || '',
+      cockpit_image_url: selectedAircraft.cockpit_image_url || '',
+      additional_images: selectedAircraft.additional_images || [],
+      release_date: selectedAircraft.release_date || '',
+      compatibility: selectedAircraft.compatibility || ['MS2024'],
+      download_url: selectedAircraft.download_url || '',
+      developer_website: selectedAircraft.developer_website || '',
+      features: selectedAircraft.features || []
+    });
+    setCurrentView('edit');
+  };
+
+  const handleArchiveAircraft = async () => {
+    if (!user?.is_admin || !selectedAircraft) return;
+    
+    if (confirm('Are you sure you want to archive this aircraft? It will be hidden from users but preserved in the database.')) {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}/archive`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+          alert('Aircraft archived successfully');
+          setCurrentView('simulations');
+          // Refresh the simulations list
+          handleManufacturerSelect(selectedManufacturer);
+        } else {
+          alert(data.detail || 'Failed to archive aircraft');
+        }
+      } catch (error) {
+        console.error('Error archiving aircraft:', error);
+        alert('Failed to archive aircraft');
+      }
+    }
+  };
+
+  const handleWriteReview = () => {
+    if (!user) {
+      setShowLoginPrompt(true);
+      return;
+    }
+    setShowReviewForm(true);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    if (!user || !selectedAircraft) return;
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(reviewFormData)
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        const reviewsResponse = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}/reviews`);
+        const updatedReviews = await reviewsResponse.json();
+        setReviews(updatedReviews);
+        
+        // Refresh aircraft data
+        const aircraftResponse = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}`);
+        const updatedAircraft = await aircraftResponse.json();
+        setSelectedAircraft(updatedAircraft);
+        
+        setReviewFormData({
+          title: '',
+          content: '',
+          ratings: {
+            overall: 5,
+            performance: 5,
+            visual_quality: 5,
+            flight_model: 5,
+            systems_accuracy: 5
+          }
+        });
+        setShowReviewForm(false);
+        alert('Review submitted successfully!');
+      } else {
+        alert(data.detail || 'Failed to submit review');
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('Failed to submit review');
+    }
+  };
+
+  const handleAircraftSubmit = async (e) => {
+    e.preventDefault();
+    if (!user || !user.is_admin) return;
+
+    try {
+      let response;
+      if (currentView === 'edit' && selectedAircraft) {
+        response = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(aircraftFormData)
+        });
+      } else {
+        response = await fetch(`${BACKEND_URL}/api/aircraft`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(aircraftFormData)
+        });
+      }
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(currentView === 'edit' ? 'Aircraft updated successfully!' : 'Aircraft added successfully!');
+        setShowAircraftForm(false);
+        
+        if (currentView === 'edit') {
+          // Refresh aircraft data and go back to aircraft view
+          const updatedAircraftResponse = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}`);
+          const updatedAircraft = await updatedAircraftResponse.json();
+          setSelectedAircraft(updatedAircraft);
+          setCurrentView('aircraft');
+        } else {
+          // Go back to categories
+          setCurrentView('categories');
+        }
+        
+        // Reset form
+        setAircraftFormData({
+          name: '',
+          developer: '',
+          aircraft_manufacturer: '',
+          aircraft_model: '',
+          variant: '',
+          category: 'Commercial',
+          price_type: 'Paid',
+          price: '',
+          description: '',
+          image_url: '',
+          cockpit_image_url: '',
+          additional_images: [],
+          release_date: '',
+          compatibility: ['MS2024'],
+          download_url: '',
+          developer_website: '',
+          features: []
+        });
+      } else {
+        alert(data.detail || `Failed to ${currentView === 'edit' ? 'update' : 'add'} aircraft`);
+      }
+    } catch (error) {
+      console.error('Error with aircraft operation:', error);
+      alert(`Failed to ${currentView === 'edit' ? 'update' : 'add'} aircraft`);
+    }
+  };
+
+  const renderStars = (rating) => {
+    if (!rating || rating === 0) return '☆☆☆☆☆'; // Show empty stars for 0 rating
+    return '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const renderNavigation = () => (
+    <nav className="bg-white shadow-lg sticky top-0 z-40">
+      {/* Main Header with Categories */}
+      <div className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-16 space-x-8">
+            <button
+              onClick={() => setCurrentView('categories')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'categories' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">🏠</span>
+              <span>Categories</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('top10')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'top10' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">🏆</span>
+              <span>Top 10</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('viewall')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'viewall' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">📋</span>
+              <span>View All</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('mostviewed')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'mostviewed' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">👀</span>
+              <span>Most Viewed</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('trending')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'trending' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">🔥</span>
+              <span>Trending</span>
+            </button>
+            <button
+              onClick={() => {
+                setSelectedFilterCategory('Commercial');
+                setCurrentView('manufacturers');
+                setSelectedCategory('Commercial');
+                handleCategorySelect('Commercial');
+              }}
+              className="flex flex-col items-center px-3 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors"
+            >
+              <span className="text-lg mb-1">✈️</span>
+              <span>Commercial</span>
+            </button>
+            <button
+              onClick={() => {
+                setSelectedFilterCategory('General Aviation');
+                setCurrentView('manufacturers');
+                setSelectedCategory('General Aviation');
+                handleCategorySelect('General Aviation');
+              }}
+              className="flex flex-col items-center px-3 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors"
+            >
+              <span className="text-lg mb-1">🛩️</span>
+              <span>General Aviation</span>
+            </button>
+            <button
+              onClick={() => {
+                setSelectedFilterCategory('Military');
+                setCurrentView('manufacturers');
+                setSelectedCategory('Military');
+                handleCategorySelect('Military');
+              }}
+              className="flex flex-col items-center px-3 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors"
+            >
+              <span className="text-lg mb-1">🚁</span>
+              <span>Military</span>
+            </button>
+            <button
+              onClick={() => {
+                setSelectedFilterCategory('Helicopters');
+                setCurrentView('manufacturers');
+                setSelectedCategory('Helicopters');
+                handleCategorySelect('Helicopters');
+              }}
+              className="flex flex-col items-center px-3 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors"
+            >
+              <span className="text-lg mb-1">🚁</span>
+              <span>Helicopters</span>
+            </button>
+            {user?.is_admin && (
+              <button
+                onClick={() => setShowAircraftForm(true)}
+                className="flex flex-col items-center px-3 py-2 text-sm font-medium text-green-300 hover:text-green-100 transition-colors"
+              >
+                <span className="text-lg mb-1">➕</span>
+                <span>Add Aircraft</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Secondary Header with Logo, Search, and User */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Title */}
+            <div className="flex items-center">
+              <button
+                onClick={() => {
+                  setCurrentView('categories');
+                  setSelectedCategory('');
+                  setSelectedManufacturer('');
+                  setSelectedAircraft(null);
+                }}
+                className="text-2xl font-bold text-blue-800 hover:text-blue-600"
+              >
+                ✈️ FlightSimSpot
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-1 max-w-md mx-8">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  placeholder="Search aircraft..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  className="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={handleSearch}
+                  className="absolute right-2 p-1 text-gray-400 hover:text-blue-600"
+                >
+                  🔍
+                </button>
+              </div>
+            </div>
+
+            {/* User Section */}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={user.avatar_url}
+                    alt={user.name}
+                    className="h-8 w-8 rounded-full"
+                  />
+                  <span className="text-sm font-medium text-gray-700">{user.name}</span>
+                  {user.is_admin && (
+                    <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Admin</span>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm text-red-600 hover:text-red-800"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => console.log('Login Failed')}
+                  theme="outline"
+                  size="medium"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Breadcrumb Navigation */}
+      {(selectedCategory || selectedManufacturer || selectedAircraft || currentView === 'edit') && (
+        <div className="bg-gray-50 border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center h-10 text-sm">
+              <button
+                onClick={() => setCurrentView('categories')}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                Home
+              </button>
+              {selectedCategory && (
+                <>
+                  <span className="mx-2 text-gray-400">→</span>
+                  <button
+                    onClick={() => setCurrentView('manufacturers')}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    {selectedCategory}
+                  </button>
+                </>
+              )}
+              {selectedManufacturer && (
+                <>
+                  <span className="mx-2 text-gray-400">→</span>
+                  <button
+                    onClick={() => setCurrentView('simulations')}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    {selectedManufacturer}
+                  </button>
+                </>
+              )}
+              {selectedAircraft && currentView === 'aircraft' && (
+                <>
+                  <span className="mx-2 text-gray-400">→</span>
+                  <span className="text-gray-600">{selectedAircraft.developer} {selectedAircraft.name}</span>
+                </>
+              )}
+              {currentView === 'edit' && (
+                <>
+                  <span className="mx-2 text-gray-400">→</span>
+                  <span className="text-gray-600">Edit Aircraft</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+
+  const renderCategoriesView = () => (
+    <>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white">
+        <div className="relative">
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1587408811730-1a978e6c407d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwzfHxhaXJjcmFmdHxlbnwwfHx8fDE3NTI5Mjg4OTF8MA&ixlib=rb-4.1.0&q=85"
+              alt="Aircraft Cockpit"
+              className="w-full h-full object-cover opacity-30"
+            />
+          </div>
+          <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">
+                FlightSimSpot
+              </h1>
+              <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+                Your ultimate destination for flight simulation reviews and ratings
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-3xl font-bold">{stats.total_aircraft}</div>
+                  <div className="text-sm opacity-90">Aircraft</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-3xl font-bold">{stats.total_reviews}</div>
+                  <div className="text-sm opacity-90">Reviews</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-3xl font-bold">{stats.paid_aircraft}</div>
+                  <div className="text-sm opacity-90">Paid</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+                  <div className="text-3xl font-bold">{stats.free_aircraft}</div>
+                  <div className="text-sm opacity-90">Freeware</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recently Added Section */}
+      {recentAircraft.length > 0 && (
+        <div className="bg-gray-50 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Recently Added Aircraft</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {recentAircraft.map((aircraft) => (
+                <div
+                  key={aircraft.id}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+                  onClick={() => openAircraftDetails(aircraft)}
+                >
+                  <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                    <img
+                      src={aircraft.image_url}
+                      alt={aircraft.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentNode.innerHTML = `
+                          <div class="text-white text-center">
+                            <div class="text-4xl mb-2">✈️</div>
+                            <div class="text-sm">${aircraft.variant}</div>
+                          </div>
+                        `;
+                      }}
+                    />
+                  </div>
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                        <p className="text-sm text-gray-500">{aircraft.variant}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        aircraft.price_type === 'Paid'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {aircraft.price_type}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{aircraft.description}</p>
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                        <span className="text-sm text-gray-600 ml-2">
+                          {aircraft.average_rating} ({aircraft.total_reviews})
+                        </span>
+                      </div>
+                      <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Categories Section with Images */}
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Browse by Aircraft Category</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Object.entries(categories).map(([categoryName, data]) => {
+            // Define category images
+            const categoryImages = {
+              'Commercial': 'https://images.unsplash.com/photo-1722229150411-ab81784fa096?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwyfHxjb21tZXJjaWFsJTIwYWlyY3JhZnR8ZW58MHx8fHwxNzUyOTU0MDI5fDA&ixlib=rb-4.1.0&q=85',
+              'General Aviation': 'https://images.unsplash.com/photo-1686925160856-9998a9d06791?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxnZW5lcmFsJTIwYXZpYXRpb258ZW58MHx8fHwxNzUyOTU0MDM1fDA&ixlib=rb-4.1.0&q=85',
+              'Military': 'https://images.unsplash.com/photo-1662471520112-1fa9e9a569e2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxtaWxpdGFyeSUyMGFpcmNyYWZ0fGVufDB8fHx8MTc1Mjk1NDA0Mnww&ixlib=rb-4.1.0&q=85',
+              'Helicopters': 'https://images.unsplash.com/photo-1495554698253-681539e9ea84?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxoZWxpY29wdGVyfGVufDB8fHx8MTc1Mjk1NDA0OHww&ixlib=rb-4.1.0&q=85'
+            };
+
+            return (
+              <div
+                key={categoryName}
+                className="relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border-l-4 border-blue-500"
+                onClick={() => handleCategorySelect(categoryName)}
+              >
+                {/* Category Image Background */}
+                <div className="aspect-video relative">
+                  <img
+                    src={categoryImages[categoryName] || 'https://images.unsplash.com/photo-1587408811730-1a978e6c407d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwzfHxhaXJjcmFmdHxlbnwwfHx8fDE3NTI5Mjg4OTF8MA&ixlib=rb-4.1.0&q=85'}
+                    alt={categoryName}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h3 className="text-3xl font-bold text-white text-center">{categoryName}</h3>
+                  </div>
+                </div>
+                
+                {/* Category Info */}
+                <div className="p-6">
+                  <p className="text-gray-600 mb-4">
+                    {data.count} aircraft available
+                  </p>
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      Avg Rating: {data.avg_rating} ★
+                    </div>
+                    <div className="text-blue-600 font-medium">
+                      Browse Aircraft →
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+
+  const renderManufacturersView = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <button
+            onClick={() => setCurrentView('categories')}
+            className="text-blue-600 hover:text-blue-800 mb-2"
+          >
+            ← Back to Categories
+          </button>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {selectedCategory} Aircraft Manufacturers
+          </h2>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {Object.entries(manufacturers).map(([manufacturerName, data]) => (
+          <div
+            key={manufacturerName}
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border-l-4 border-green-500"
+            onClick={() => handleManufacturerSelect(manufacturerName)}
+          >
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">{manufacturerName}</h3>
+            <p className="text-gray-600 mb-4">
+              {data.count} simulations available
+            </p>
+            <div className="mb-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Models:</p>
+              <div className="flex flex-wrap gap-2">
+                {data.models.slice(0, 3).map((model, index) => (
+                  <span key={index} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
+                    {model}
+                  </span>
+                ))}
+                {data.models.length > 3 && (
+                  <span className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full">
+                    +{data.models.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                Avg Rating: {data.avg_rating} ★
+              </div>
+              <div className="text-green-600 font-medium">
+                View Simulations →
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderSimulationsView = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <button
+            onClick={() => setCurrentView('manufacturers')}
+            className="text-blue-600 hover:text-blue-800 mb-2"
+          >
+            ← Back to {selectedCategory} Manufacturers
+          </button>
+          <h2 className="text-3xl font-bold text-gray-900">
+            {selectedManufacturer} Simulations
+          </h2>
+          <p className="text-gray-600">{simulations.length} simulations available</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <label className="text-sm font-medium text-gray-700">Sort by:</label>
+          <select
+            value={sortBy}
+            onChange={(e) => handleSortChange(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="rating">Highest Rated</option>
+            <option value="reviews">Most Reviews</option>
+            <option value="price_low">Price: Low to High</option>
+            <option value="price_high">Price: High to Low</option>
+            <option value="newest">Newest First</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {simulations.map((aircraft) => (
+          <div
+            key={aircraft.id}
+            className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+            onClick={() => openAircraftDetails(aircraft)}
+          >
+            <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+              <img
+                src={aircraft.image_url}
+                alt={aircraft.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentNode.innerHTML = `
+                    <div class="text-white text-center">
+                      <div class="text-4xl mb-2">✈️</div>
+                      <div class="text-sm">${aircraft.variant}</div>
+                    </div>
+                  `;
+                }}
+              />
+            </div>
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                  <p className="text-sm text-gray-500">{aircraft.variant}</p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  aircraft.price_type === 'Paid'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {aircraft.price_type}
+                </span>
+              </div>
+              <p className="text-sm text-gray-500 mb-3 line-clamp-2">{aircraft.description}</p>
+              
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center">
+                  <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                  <span className="text-sm text-gray-600 ml-2">
+                    {aircraft.average_rating} ({aircraft.total_reviews})
+                  </span>
+                </div>
+                <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-1 mb-3">
+                {aircraft.compatibility.map(compat => (
+                  <span key={compat} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                    {compat}
+                  </span>
+                ))}
+              </div>
+
+              {aircraft.features && aircraft.features.length > 0 && (
+                <div className="text-xs text-gray-500">
+                  Features: {aircraft.features.slice(0, 2).join(', ')}
+                  {aircraft.features.length > 2 && '...'}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderAircraftDetailView = () => {
+    if (!selectedAircraft) return null;
+
+    // Collect all images including additional ones
+    const allImages = [
+      selectedAircraft.image_url,
+      selectedAircraft.cockpit_image_url,
+      ...(selectedAircraft.additional_images || [])
+    ].filter(img => img && img.trim() !== '');
+
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <button
+              onClick={closeAircraftDetails}
+              className="text-blue-600 hover:text-blue-800 mb-2"
+            >
+              ← Back to {selectedManufacturer} Simulations
+            </button>
+            <h1 className="text-4xl font-bold text-gray-900">
+              {selectedAircraft.developer} {selectedAircraft.name}
+            </h1>
+            <p className="text-xl text-gray-600">{selectedAircraft.variant}</p>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {user?.is_admin && (
+              <>
+                <button
+                  onClick={handleEditAircraft}
+                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 text-sm"
+                >
+                  Edit Aircraft
+                </button>
+                <button
+                  onClick={handleArchiveAircraft}
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm"
+                >
+                  Archive Aircraft
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Images Gallery */}
+        {allImages.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-2xl font-semibold mb-4">Screenshots</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allImages.map((imageUrl, index) => (
+                <div key={index} className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg overflow-hidden">
+                  <img
+                    src={imageUrl}
+                    alt={`${selectedAircraft.name} - Image ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentNode.innerHTML = `
+                        <div class="flex items-center justify-center h-full text-white text-center">
+                          <div>
+                            <div class="text-4xl mb-2">✈️</div>
+                            <div class="text-sm">Image ${index + 1}</div>
+                          </div>
+                        </div>
+                      `;
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-2xl font-semibold mb-4">Aircraft Details</h3>
+            <div className="bg-white rounded-xl shadow-lg p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><strong>Developer:</strong> {selectedAircraft.developer}</div>
+                <div><strong>Aircraft Manufacturer:</strong> {selectedAircraft.aircraft_manufacturer}</div>
+                <div><strong>Model:</strong> {selectedAircraft.aircraft_model}</div>
+                <div><strong>Variant:</strong> {selectedAircraft.variant}</div>
+                <div><strong>Category:</strong> {selectedAircraft.category}</div>
+                <div><strong>Price:</strong> {selectedAircraft.price} ({selectedAircraft.price_type})</div>
+                <div><strong>Compatibility:</strong> {selectedAircraft.compatibility.join(', ')}</div>
+                <div><strong>Release Date:</strong> {selectedAircraft.release_date}</div>
+              </div>
+              
+              <div className="mt-6">
+                <strong>Description:</strong>
+                <p className="mt-2 text-gray-700">{selectedAircraft.description}</p>
+              </div>
+              
+              {selectedAircraft.features && selectedAircraft.features.length > 0 && (
+                <div className="mt-6">
+                  <strong>Features:</strong>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedAircraft.features.map((feature, index) => (
+                      <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex space-x-4 mt-6">
+                {selectedAircraft.developer_website && (
+                  <a
+                    href={selectedAircraft.developer_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Developer Site
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-semibold">
+                Reviews ({selectedAircraft.total_reviews})
+              </h3>
+              <button
+                onClick={handleWriteReview}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+              >
+                Write Review
+              </button>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+              <div className="text-4xl font-bold text-yellow-500 mb-2">
+                {renderStars(selectedAircraft.average_rating)}
+              </div>
+              <div className="text-sm text-gray-600">
+                {selectedAircraft.average_rating} out of 5 ({selectedAircraft.total_reviews} reviews)
+              </div>
+            </div>
+
+            {/* Review Form */}
+            {showReviewForm && (
+              <div className="mb-6 bg-white rounded-xl shadow-lg p-6">
+                <h4 className="text-xl font-semibold mb-4">Write Your Review</h4>
+                <form onSubmit={handleReviewSubmit}>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Title</label>
+                    <input
+                      type="text"
+                      value={reviewFormData.title}
+                      onChange={(e) => setReviewFormData({...reviewFormData, title: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Review</label>
+                    <textarea
+                      value={reviewFormData.content}
+                      onChange={(e) => setReviewFormData({...reviewFormData, content: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2 h-24"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {Object.entries(reviewFormData.ratings).map(([key, value]) => (
+                      <div key={key}>
+                        <label className="block text-sm font-medium mb-1 capitalize">
+                          {key.replace('_', ' ')}
+                        </label>
+                        <select
+                          value={value}
+                          onChange={(e) => setReviewFormData({
+                            ...reviewFormData,
+                            ratings: {...reviewFormData.ratings, [key]: parseInt(e.target.value)}
+                          })}
+                          className="w-full border rounded px-2 py-1 text-sm"
+                        >
+                          {[1,2,3,4,5].map(rating => (
+                            <option key={rating} value={rating}>{rating} Stars</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm"
+                    >
+                      Submit Review
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowReviewForm(false)}
+                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {reviews.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No reviews yet. Be the first to review this aircraft!</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center space-x-3">
+                          {review.user_avatar && (
+                            <img
+                              src={review.user_avatar}
+                              alt={review.user_name}
+                              className="h-8 w-8 rounded-full"
+                            />
+                          )}
+                          <div>
+                            <h4 className="font-semibold">{review.title}</h4>
+                            <p className="text-sm text-gray-600">
+                              by {review.user_name} • {formatDate(review.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-yellow-400">{renderStars(review.ratings.overall)}</span>
+                      </div>
+                      <p className="text-sm mb-3">{review.content}</p>
+                      <div className="grid grid-cols-4 gap-2 text-xs">
+                        <div>Performance: {renderStars(review.ratings.performance)}</div>
+                        <div>Visual: {renderStars(review.ratings.visual_quality)}</div>
+                        <div>Flight Model: {renderStars(review.ratings.flight_model)}</div>
+                        <div>Systems: {renderStars(review.ratings.systems_accuracy)}</div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderEditAircraftView = () => {
+    if (!user?.is_admin || !selectedAircraft) return null;
+
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <button
+              onClick={() => setCurrentView('aircraft')}
+              className="text-blue-600 hover:text-blue-800 mb-2"
+            >
+              ← Back to Aircraft Details
+            </button>
+            <h1 className="text-4xl font-bold text-gray-900">Edit Aircraft</h1>
+            <p className="text-gray-600">{selectedAircraft.developer} {selectedAircraft.name}</p>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <form onSubmit={handleAircraftSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Aircraft Name</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.name}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, name: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Developer (PMDG, Fenix, etc.)</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.developer}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, developer: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Aircraft Manufacturer (Boeing, Airbus, etc.)</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.aircraft_manufacturer}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, aircraft_manufacturer: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="e.g., Boeing, Airbus, Cessna"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Aircraft Model</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.aircraft_model}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, aircraft_model: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="e.g., 737-800, A320, Citation CJ4"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Variant</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.variant}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, variant: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="e.g., A320neo, 737-800"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <select
+                  value={aircraftFormData.category}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, category: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="Commercial">Commercial</option>
+                  <option value="General Aviation">General Aviation</option>
+                  <option value="Military">Military</option>
+                  <option value="Helicopters">Helicopters</option>
+                  <option value="Cargo">Cargo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Price Type</label>
+                <select
+                  value={aircraftFormData.price_type}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, price_type: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                >
+                  <option value="Paid">Paid</option>
+                  <option value="Freeware">Freeware</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Price</label>
+                <input
+                  type="text"
+                  value={aircraftFormData.price}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, price: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="e.g., $59.99 or Free"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <textarea
+                value={aircraftFormData.description}
+                onChange={(e) => setAircraftFormData({...aircraftFormData, description: e.target.value})}
+                className="w-full border rounded-lg px-3 py-2 h-24"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Main Image URL</label>
+                <input
+                  type="url"
+                  value={aircraftFormData.image_url}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, image_url: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Cockpit Image URL</label>
+                <input
+                  type="url"
+                  value={aircraftFormData.cockpit_image_url}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, cockpit_image_url: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Download URL</label>
+                <input
+                  type="url"
+                  value={aircraftFormData.download_url}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, download_url: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Developer Website</label>
+                <input
+                  type="url"
+                  value={aircraftFormData.developer_website}
+                  onChange={(e) => setAircraftFormData({...aircraftFormData, developer_website: e.target.value})}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Update Aircraft
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentView('aircraft')}
+                className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTop10View = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Top 10 Highest Rated Aircraft</h2>
+        <p className="text-gray-600">Discover the best aircraft based on user reviews and ratings</p>
+      </div>
+
+      {topAircraft.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No rated aircraft available yet. Be the first to review!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {topAircraft.map((aircraft, index) => (
+            <div
+              key={aircraft.id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer relative"
+              onClick={() => openAircraftDetails(aircraft)}
+            >
+              {/* Ranking Badge */}
+              <div className="absolute top-4 left-4 z-10">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                  index === 0 ? 'bg-yellow-500' : 
+                  index === 1 ? 'bg-gray-400' : 
+                  index === 2 ? 'bg-amber-600' : 'bg-blue-500'
+                }`}>
+                  {index + 1}
+                </div>
+              </div>
+
+              <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                <img
+                  src={aircraft.image_url}
+                  alt={aircraft.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentNode.innerHTML = `
+                      <div class="text-white text-center">
+                        <div class="text-4xl mb-2">✈️</div>
+                        <div class="text-sm">${aircraft.variant}</div>
+                      </div>
+                    `;
+                  }}
+                />
+              </div>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                    <p className="text-sm text-gray-500">{aircraft.variant}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    aircraft.price_type === 'Paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {aircraft.price_type}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 mb-3 line-clamp-2">{aircraft.description}</p>
+                
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center">
+                    <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                    <span className="text-sm text-gray-600 ml-2">
+                      {aircraft.average_rating} ({aircraft.total_reviews})
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {aircraft.compatibility.map(compat => (
+                    <span key={compat} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      {compat}
+                    </span>
+                  ))}
+                </div>
+
+                {aircraft.features && aircraft.features.length > 0 && (
+                  <div className="text-xs text-gray-500">
+                    Features: {aircraft.features.slice(0, 2).join(', ')}
+                    {aircraft.features.length > 2 && '...'}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderViewAllPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">All Aircraft</h1>
+          <p className="text-gray-600 mt-2">Complete list of {allAircraft.length} aircraft available</p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <select 
+            onChange={(e) => {
+              const sorted = [...allAircraft];
+              switch(e.target.value) {
+                case 'name':
+                  sorted.sort((a, b) => a.name.localeCompare(b.name));
+                  break;
+                case 'developer':
+                  sorted.sort((a, b) => a.developer.localeCompare(b.developer));
+                  break;
+                case 'rating':
+                  sorted.sort((a, b) => b.average_rating - a.average_rating);
+                  break;
+                case 'price':
+                  sorted.sort((a, b) => {
+                    const priceA = a.price === 'Free' ? 0 : parseFloat(a.price.replace('$', '')) || 0;
+                    const priceB = b.price === 'Free' ? 0 : parseFloat(b.price.replace('$', '')) || 0;
+                    return priceA - priceB;
+                  });
+                  break;
+              }
+              setAllAircraft(sorted);
+            }}
+            className="border border-gray-300 rounded-lg px-3 py-2"
+          >
+            <option value="name">Sort by Name</option>
+            <option value="developer">Sort by Developer</option>
+            <option value="rating">Sort by Rating</option>
+            <option value="price">Sort by Price</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Aircraft
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Developer
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rating
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Views
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Compatibility
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {allAircraft.map((aircraft) => (
+                <tr key={aircraft.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openAircraftDetails(aircraft)}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-12 w-16">
+                        <img
+                          className="h-12 w-16 rounded object-cover"
+                          src={aircraft.image_url}
+                          alt={aircraft.name}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentNode.innerHTML = `
+                              <div class="h-12 w-16 bg-blue-100 rounded flex items-center justify-center">
+                                <span class="text-blue-600 text-lg">✈️</span>
+                              </div>
+                            `;
+                          }}
+                        />
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{aircraft.name}</div>
+                        <div className="text-sm text-gray-500">{aircraft.variant}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{aircraft.developer}</div>
+                    <div className="text-sm text-gray-500">{aircraft.aircraft_manufacturer}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                      {aircraft.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{aircraft.price}</div>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      aircraft.price_type === 'Paid'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {aircraft.price_type}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="text-sm text-yellow-400">{renderStars(aircraft.average_rating)}</div>
+                      <div className="text-sm text-gray-500 ml-2">
+                        {aircraft.average_rating} ({aircraft.total_reviews})
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{aircraft.view_count || 0}</div>
+                    <div className="text-sm text-gray-500">views</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-1">
+                      {aircraft.compatibility.map((comp) => (
+                        <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                          {comp}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openAircraftDetails(aircraft);
+                      }}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      View
+                    </button>
+                    {user?.is_admin && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAircraft(aircraft);
+                          setAircraftFormData({
+                            name: aircraft.name,
+                            developer: aircraft.developer,
+                            aircraft_manufacturer: aircraft.aircraft_manufacturer,
+                            aircraft_model: aircraft.aircraft_model,
+                            variant: aircraft.variant,
+                            category: aircraft.category,
+                            price_type: aircraft.price_type,
+                            price: aircraft.price || '',
+                            description: aircraft.description,
+                            image_url: aircraft.image_url || '',
+                            cockpit_image_url: aircraft.cockpit_image_url || '',
+                            additional_images: aircraft.additional_images || [],
+                            release_date: aircraft.release_date || '',
+                            compatibility: aircraft.compatibility || ['MS2024'],
+                            download_url: aircraft.download_url || '',
+                            developer_website: aircraft.developer_website || '',
+                            features: aircraft.features || []
+                          });
+                          setCurrentView('edit');
+                        }}
+                        className="text-orange-600 hover:text-orange-900"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {allAircraft.length === 0 && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-6xl mb-4">✈️</div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">No aircraft found</h3>
+          <p className="text-gray-500">There are no aircraft available at the moment.</p>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderMostViewedPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">👀 Most Viewed Aircraft</h2>
+        <p className="text-gray-600">Discover the aircraft that capture the community's attention</p>
+        <div className="mt-4 text-sm text-gray-500">
+          Total page views across all aircraft: {analytics.total_views.toLocaleString()}
+        </div>
+      </div>
+
+      {analytics.most_viewed.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No view data available yet.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {analytics.most_viewed.map((aircraft, index) => (
+            <div
+              key={aircraft.id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer relative"
+              onClick={() => openAircraftDetails(aircraft)}
+            >
+              {/* View Count Badge */}
+              <div className="absolute top-4 right-4 z-10">
+                <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
+                  👀 {aircraft.view_count || 0}
+                </div>
+              </div>
+
+              {/* Ranking Badge */}
+              <div className="absolute top-4 left-4 z-10">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                  index === 0 ? 'bg-yellow-500' : 
+                  index === 1 ? 'bg-gray-400' : 
+                  index === 2 ? 'bg-amber-600' : 'bg-blue-500'
+                }`}>
+                  {index + 1}
+                </div>
+              </div>
+
+              <div className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                <img
+                  src={aircraft.image_url}
+                  alt={aircraft.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentNode.innerHTML = `
+                      <div class="text-white text-center">
+                        <div class="text-4xl mb-2">✈️</div>
+                        <div class="text-sm">${aircraft.variant}</div>
+                      </div>
+                    `;
+                  }}
+                />
+              </div>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                    <p className="text-sm text-gray-500">{aircraft.variant}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    aircraft.price_type === 'Paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {aircraft.price_type}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center">
+                    <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                    <span className="text-sm text-gray-600 ml-2">
+                      {aircraft.average_rating} ({aircraft.total_reviews})
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderTrendingPage = () => (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">🔥 Trending Aircraft</h2>
+        <p className="text-gray-600">Currently popular aircraft (viewed in the last 7 days)</p>
+      </div>
+
+      {analytics.trending.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No trending aircraft this week.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {analytics.trending.map((aircraft, index) => (
+            <div
+              key={aircraft.id}
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer relative"
+              onClick={() => openAircraftDetails(aircraft)}
+            >
+              {/* Trending Badge */}
+              <div className="absolute top-4 right-4 z-10">
+                <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center">
+                  🔥 Hot
+                </div>
+              </div>
+
+              {/* View Count */}
+              <div className="absolute top-4 left-4 z-10">
+                <div className="bg-blue-500/80 text-white px-2 py-1 rounded text-sm">
+                  👀 {aircraft.view_count || 0}
+                </div>
+              </div>
+
+              <div className="aspect-video bg-gradient-to-br from-red-600 to-orange-800 flex items-center justify-center">
+                <img
+                  src={aircraft.image_url}
+                  alt={aircraft.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentNode.innerHTML = `
+                      <div class="text-white text-center">
+                        <div class="text-4xl mb-2">✈️</div>
+                        <div class="text-sm">${aircraft.variant}</div>
+                      </div>
+                    `;
+                  }}
+                />
+              </div>
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                    <p className="text-sm text-gray-500">{aircraft.variant}</p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    aircraft.price_type === 'Paid'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {aircraft.price_type}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center">
+                    <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                    <span className="text-sm text-gray-600 ml-2">
+                      {aircraft.average_rating} ({aircraft.total_reviews})
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className="min-h-screen bg-gray-50">
+        {renderNavigation()}
+
+        {currentView === 'categories' && renderCategoriesView()}
+        {currentView === 'manufacturers' && renderManufacturersView()}
+        {currentView === 'simulations' && renderSimulationsView()}
+        {currentView === 'aircraft' && renderAircraftDetailView()}
+        {currentView === 'edit' && renderEditAircraftView()}
+        {currentView === 'top10' && renderTop10View()}
+        {currentView === 'viewall' && renderViewAllPage()}
+        {currentView === 'mostviewed' && renderMostViewedPage()}
+        {currentView === 'trending' && renderTrendingPage()}
+
+        {/* Login Prompt Modal */}
+        {showLoginPrompt && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-md w-full p-6">
+              <h2 className="text-xl font-bold mb-4">Login Required</h2>
+              <p className="text-gray-600 mb-4">
+                Please login with Google to write a review.
+              </p>
+              <div className="flex justify-center mb-4">
+                <GoogleLogin
+                  onSuccess={handleGoogleLogin}
+                  onError={() => console.log('Login Failed')}
+                  theme="outline"
+                  size="large"
+                />
+              </div>
+              <button
+                onClick={() => setShowLoginPrompt(false)}
+                className="w-full py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Aircraft Form Modal (Add/Edit) */}
+        {(showAircraftForm || showEditForm) && user?.is_admin && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
+              <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                <h2 className="text-2xl font-bold">
+                  {showEditForm ? 'Edit Aircraft' : 'Add New Aircraft'}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowAircraftForm(false);
+                    setShowEditForm(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <form onSubmit={handleAircraftSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Aircraft Name</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.name}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, name: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Developer (PMDG, Fenix, etc.)</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.developer}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, developer: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Aircraft Manufacturer (Boeing, Airbus, etc.)</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.aircraft_manufacturer}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, aircraft_manufacturer: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="e.g., Boeing, Airbus, Cessna"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Aircraft Model</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.aircraft_model}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, aircraft_model: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="e.g., 737-800, A320, Citation CJ4"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Variant</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.variant}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, variant: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="e.g., A320neo, 737-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Category</label>
+                    <select
+                      value={aircraftFormData.category}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, category: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="Commercial">Commercial</option>
+                      <option value="General Aviation">General Aviation</option>
+                      <option value="Military">Military</option>
+                      <option value="Helicopters">Helicopters</option>
+                      <option value="Cargo">Cargo</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Price Type</label>
+                    <select
+                      value={aircraftFormData.price_type}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, price_type: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="Paid">Paid</option>
+                      <option value="Freeware">Freeware</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Price</label>
+                    <input
+                      type="text"
+                      value={aircraftFormData.price}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, price: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="e.g., $59.99 or Free"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description</label>
+                  <textarea
+                    value={aircraftFormData.description}
+                    onChange={(e) => setAircraftFormData({...aircraftFormData, description: e.target.value})}
+                    className="w-full border rounded-lg px-3 py-2 h-24"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Image URL</label>
+                    <input
+                      type="url"
+                      value={aircraftFormData.image_url}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, image_url: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Cockpit Image URL</label>
+                    <input
+                      type="url"
+                      value={aircraftFormData.cockpit_image_url}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, cockpit_image_url: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Download URL</label>
+                    <input
+                      type="url"
+                      value={aircraftFormData.download_url}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, download_url: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Developer Website</label>
+                    <input
+                      type="url"
+                      value={aircraftFormData.developer_website}
+                      onChange={(e) => setAircraftFormData({...aircraftFormData, developer_website: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex space-x-2">
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                  >
+                    {showEditForm ? 'Update Aircraft' : 'Add Aircraft'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAircraftForm(false);
+                      setShowEditForm(false);
+                    }}
+                    className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+      </div>
+    </GoogleOAuthProvider>
+  );
+}
+
+export default App;
