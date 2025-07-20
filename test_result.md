@@ -250,7 +250,7 @@ frontend:
     file: "App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
@@ -262,7 +262,7 @@ frontend:
     file: "App.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
@@ -274,7 +274,7 @@ frontend:
     file: "App.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
@@ -286,11 +286,47 @@ frontend:
     file: "App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "main"
           comment: "Edit button now navigates to dedicated edit page view with proper form"
+
+  - task: "Compatibility Field in Add New Aircraft Form"
+    implemented: false
+    working: false
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Edit form has compatibility checkboxes (lines 1585-1627) but Add New Aircraft form is missing them. Need to add MSFS 2020/2024 compatibility section."
+
+  - task: "Admin Dashboard Display"
+    implemented: true
+    working: false
+    file: "App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Frontend has fetchAdminStats function and adminStats state, but dashboard showing 0s. Issue likely related to backend authentication."
+
+  - task: "Welcome Message Editor Frontend"
+    implemented: true
+    working: false
+    file: "App.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Frontend has editor modal but lacks backend integration for persistence to database."
 
 metadata:
   created_by: "main_agent"
