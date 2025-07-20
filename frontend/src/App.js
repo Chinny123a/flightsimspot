@@ -116,6 +116,13 @@ function App() {
     fetchAllManufacturers();
   }, [currentView]);
 
+  // Apply filters whenever filters or allAircraft change
+  useEffect(() => {
+    if (allAircraft.length > 0) {
+      applyFilters();
+    }
+  }, [filters, allAircraft]);
+
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
