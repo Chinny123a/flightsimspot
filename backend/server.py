@@ -171,6 +171,15 @@ class ReviewCreate(BaseModel):
     content: str
     ratings: ReviewRatings
 
+class WelcomeMessage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    message: str
+    updated_at: datetime = Field(default_factory=datetime.now)
+    updated_by: str  # user email
+
+class WelcomeMessageUpdate(BaseModel):
+    message: str
+
 # Helper functions
 async def get_current_user(request: Request) -> Optional[Dict]:
     user_data = request.session.get('user')
