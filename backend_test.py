@@ -1004,6 +1004,11 @@ def main():
     # Review system tests
     test_results.append(tester.test_create_review())
     
+    # NEW TESTS FOR RECENT FIXES
+    test_results.append(tester.test_admin_stats_endpoint_unauthorized())
+    test_results.append(tester.test_welcome_message_endpoints())
+    test_results.append(tester.test_delete_review_endpoint_unauthorized())
+    
     # Filtering and search tests
     test_results.append(tester.test_aircraft_filtering())
     test_results.append(tester.test_search_functionality())
