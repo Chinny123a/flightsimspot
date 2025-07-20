@@ -2414,27 +2414,53 @@ function App() {
                 </p>
               </div>
               
-              {/* Clear all filters button */}
-              {(filters.selectedDevelopers.length > 0 || filters.selectedManufacturers.length > 0 || 
-                filters.selectedCategories.length > 0 || filters.selectedCompatibility.length > 0 || 
-                filters.priceType.length > 0 || filters.selectedRatings.length > 0 || 
-                filters.searchText || filters.priceRange[0] > 0 || filters.priceRange[1] < 200) && (
-                <button
-                  onClick={() => setFilters({
-                    priceRange: [0, 200],
-                    selectedDevelopers: [],
-                    selectedManufacturers: [],
-                    selectedCategories: [],
-                    selectedRatings: [],
-                    selectedCompatibility: [],
-                    priceType: [],
-                    searchText: ''
-                  })}
-                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
-                >
-                  Clear All Filters
-                </button>
-              )}
+              <div className="flex items-center space-x-4">
+                {/* View Mode Toggle */}
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('detailed')}
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                      viewMode === 'detailed'
+                        ? 'bg-white text-gray-900 shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Detailed
+                  </button>
+                  <button
+                    onClick={() => setViewMode('compact')}
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                      viewMode === 'compact'
+                        ? 'bg-white text-gray-900 shadow'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    Compact
+                  </button>
+                </div>
+                
+                {/* Clear all filters button */}
+                {(filters.selectedDevelopers.length > 0 || filters.selectedManufacturers.length > 0 || 
+                  filters.selectedCategories.length > 0 || filters.selectedCompatibility.length > 0 || 
+                  filters.priceType.length > 0 || filters.selectedRatings.length > 0 || 
+                  filters.searchText || filters.priceRange[0] > 0 || filters.priceRange[1] < 200) && (
+                  <button
+                    onClick={() => setFilters({
+                      priceRange: [0, 200],
+                      selectedDevelopers: [],
+                      selectedManufacturers: [],
+                      selectedCategories: [],
+                      selectedRatings: [],
+                      selectedCompatibility: [],
+                      priceType: [],
+                      searchText: ''
+                    })}
+                    className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
+              </div>
             </div>
             
             {/* Active Filters */}
