@@ -1164,58 +1164,6 @@ function App() {
           </div>
         </div>
       )}
-
-      {/* Categories Section with Images */}
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Browse by Aircraft Category</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {Object.entries(categories).map(([categoryName, data]) => {
-            // Define category images
-            const categoryImages = {
-              'Commercial': 'https://images.unsplash.com/photo-1722229150411-ab81784fa096?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwyfHxjb21tZXJjaWFsJTIwYWlyY3JhZnR8ZW58MHx8fHwxNzUyOTU0MDI5fDA&ixlib=rb-4.1.0&q=85',
-              'General Aviation': 'https://images.unsplash.com/photo-1686925160856-9998a9d06791?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxnZW5lcmFsJTIwYXZpYXRpb258ZW58MHx8fHwxNzUyOTU0MDM1fDA&ixlib=rb-4.1.0&q=85',
-              'Military': 'https://images.unsplash.com/photo-1662471520112-1fa9e9a569e2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxtaWxpdGFyeSUyMGFpcmNyYWZ0fGVufDB8fHx8MTc1Mjk1NDA0Mnww&ixlib=rb-4.1.0&q=85',
-              'Helicopters': 'https://images.unsplash.com/photo-1495554698253-681539e9ea84?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxoZWxpY29wdGVyfGVufDB8fHx8MTc1Mjk1NDA0OHww&ixlib=rb-4.1.0&q=85'
-            };
-
-            return (
-              <div
-                key={categoryName}
-                className="relative bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border-l-4 border-blue-500"
-                onClick={() => handleCategorySelect(categoryName)}
-              >
-                {/* Category Image Background */}
-                <div className="aspect-video relative">
-                  <img
-                    src={categoryImages[categoryName] || 'https://images.unsplash.com/photo-1587408811730-1a978e6c407d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDJ8MHwxfHNlYXJjaHwzfHxhaXJjcmFmdHxlbnwwfHx8fDE3NTI5Mjg4OTF8MA&ixlib=rb-4.1.0&q=85'}
-                    alt={categoryName}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="text-3xl font-bold text-white text-center">{categoryName}</h3>
-                  </div>
-                </div>
-                
-                {/* Category Info */}
-                <div className="p-6">
-                  <p className="text-gray-600 mb-4">
-                    {data.count} aircraft available
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
-                      Avg Rating: {data.avg_rating} ★
-                    </div>
-                    <div className="text-blue-600 font-medium">
-                      Browse Aircraft →
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </>
   );
 
