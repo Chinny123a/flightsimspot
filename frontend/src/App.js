@@ -237,6 +237,103 @@ function App() {
     }
   };
 
+  // New functions for Browse page
+  const fetchAllManufacturers = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft`);
+      const data = await response.json();
+      const manufacturers = [...new Set(data.map(aircraft => aircraft.aircraft_manufacturer))];
+      setAllManufacturers(manufacturers.sort());
+    } catch (error) {
+      console.error('Error fetching manufacturers:', error);
+    }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...allAircraft];
+
+    // Text search
+    if (filters.searchText) {
+      const searchLower = filters.searchText.toLowerCase();
+      filtered = filtered.filter(aircraft => 
+        aircraft.name.toLowerCase().includes(searchLower) ||
+        aircraft.developer.toLowerCase().includes(searchLower) ||
+        aircraft.aircraft_manufacturer.toLowerCase().includes(searchLower) ||
+        aircraft.description.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Developer filter
+    if (filters.selectedDevelopers.length > 0) {
+      filtered = filtered.filter(aircraft => 
+        filters.selectedDevelopers.includes(aircraft.developer)
+      );
+    }
+
+    // Manufacturer filter
+    if (filters.selectedManufacturers.length > 0) {
+      filtered = filtered.filter(aircraft => 
+        filters.selectedManufacturers.includes(aircraft.aircraft_manufacturer)
+      );
+    }
+
+    // Category filter
+    if (filters.selectedCategories.length > 0) {
+      filtered = filtered.filter(aircraft => 
+        filters.selectedCategories.includes(aircraft.category)
+      );
+    }
+
+    // Price type filter
+    if (filters.priceType.length > 0) {
+      filtered = filtered.filter(aircraft => 
+        filters.priceType.includes(aircraft.price_type)
+      );
+    }
+
+    // Compatibility filter
+    if (filters.selectedCompatibility.length > 0) {
+      filtered = filtered.filter(aircraft => 
+        filters.selectedCompatibility.some(compat => 
+          aircraft.compatibility && aircraft.compatibility.includes(compat)
+        )
+      );
+    }
+
+    // Rating filter (assuming ratings are numbers like 4, 5)
+    if (filters.selectedRatings.length > 0) {
+      filtered = filtered.filter(aircraft => {
+        const rating = Math.floor(aircraft.average_rating);
+        return filters.selectedRatings.includes(rating);
+      });
+    }
+
+    // Price range filter (extract numeric value from price string)
+    const [minPrice, maxPrice] = filters.priceRange;
+    filtered = filtered.filter(aircraft => {
+      if (aircraft.price_type === 'Freeware') return minPrice === 0;
+      
+      const priceStr = aircraft.price;
+      if (!priceStr) return true;
+      
+      const priceMatch = priceStr.match(/[\d.]+/);
+      if (!priceMatch) return true;
+      
+      const price = parseFloat(priceMatch[0]);
+      return price >= minPrice && price <= maxPrice;
+    });
+
+    setFilteredAircraft(filtered);
+  };
+
+  // Update filters helper
+  const updateFilter = (filterType, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
+  };
+
   const fetchWelcomeMessage = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/welcome-message`);
