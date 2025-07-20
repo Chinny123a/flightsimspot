@@ -1055,7 +1055,7 @@ function App() {
           <h2 className="text-3xl font-bold text-gray-900">
             {selectedManufacturer} Simulations
           </h2>
-          <p className="text-gray-600">{simulations.length} simulations available</p>
+          <p className="text-gray-600">{simulations.length} aircraft available</p>
         </div>
         <div className="flex items-center space-x-4">
           <label className="text-sm font-medium text-gray-700">Sort by:</label>
