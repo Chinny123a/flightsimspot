@@ -2303,33 +2303,35 @@ function App() {
             <div className="bg-white rounded-xl max-w-4xl w-full max-h-screen overflow-y-auto">
               <div className="p-6">
                 <h2 className="text-2xl font-bold mb-4">Edit Welcome Message</h2>
-                <form onSubmit={(e) => {
+                <form onSubmit={async (e) => {
                   e.preventDefault();
-                  // For now, just update the display text
-                  // In a real implementation, this would save to database
-                  setShowWelcomeEditor(false);
-                  alert('Welcome message updated! (Note: This is currently display-only. Database storage coming soon!)');
+                  const formData = new FormData(e.target);
+                  const message = formData.get('message');
+                  
+                  if (await updateWelcomeMessage(message)) {
+                    setShowWelcomeEditor(false);
+                    alert('Welcome message updated successfully!');
+                  } else {
+                    alert('Error updating welcome message. Please try again.');
+                  }
                 }}>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-2">Paragraph 1</label>
-                    <textarea
-                      className="w-full border rounded-lg px-3 py-2 h-32"
-                      defaultValue="Welcome to FlightSimSpot, the premier destination for flight simulation enthusiasts seeking honest, detailed reviews of aircraft for Microsoft Flight Simulator 2024 and 2020. Our mission is simple: to help simmers discover the best aircraft experiences, whether you're searching for study-level commercial jets, authentic general aviation aircraft, or specialised military and helicopter simulations. Every aircraft in our database is carefully reviewed, providing you with genuine insights into flight models, system depth, visual quality, and overall value."
-                    />
-                  </div>
                   <div className="mb-6">
-                    <label className="block text-sm font-medium mb-2">Paragraph 2</label>
+                    <label className="block text-sm font-medium mb-2">Welcome Message</label>
                     <textarea
-                      className="w-full border rounded-lg px-3 py-2 h-32"
-                      defaultValue="FlightSimSpot aims to catalogue all available aircraft and reviews of both premium payware and exceptional freeware aircraft. As we grow, we're expanding beyond aircraft to include scenery, hardware reviews, and comprehensive flight simulation resources. Whether you're a seasoned virtual aviator or just beginning your flight sim journey, you'll find everything you need to make informed decisions about your next virtual cockpit adventure."
+                      name="message"
+                      className="w-full border rounded-lg px-3 py-2 h-40"
+                      defaultValue={welcomeMessage || "Welcome to FlightSimSpot! Your ultimate destination for Microsoft Flight Simulator aircraft reviews. Discover the best aircraft from our community of flight simulation enthusiasts."}
+                      placeholder="Enter your welcome message..."
+                      required
                     />
+                    <p className="text-sm text-gray-500 mt-1">This message will be displayed on the homepage.</p>
                   </div>
                   <div className="flex space-x-4">
                     <button
                       type="submit"
                       className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
                     >
-                      Save Changes
+                      Update Message
                     </button>
                     <button
                       type="button"
