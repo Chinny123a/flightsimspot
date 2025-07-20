@@ -2496,9 +2496,12 @@ function App() {
                         />
                         <div>
                           <div className="text-sm font-medium text-gray-900">{aircraft.name}</div>
-                          <div className="text-sm text-gray-500">{aircraft.aircraft_manufacturer}</div>
+                          <div className="text-sm text-gray-500">{aircraft.aircraft_model}</div>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {aircraft.aircraft_manufacturer}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {aircraft.developer}
