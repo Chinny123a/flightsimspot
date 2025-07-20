@@ -788,78 +788,15 @@ function App() {
               <span>Home</span>
             </button>
 
-            {/* Categories Dropdown */}
-            <div className="relative group">
-              <button
-                className="flex flex-col items-center px-3 py-2 text-sm font-medium text-white hover:text-blue-300 transition-colors"
-              >
-                <span className="text-lg mb-1">📂</span>
-                <span>Categories</span>
-              </button>
-              
-              {/* Dropdown Menu */}
-              <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="py-2">
-                  <button
-                    onClick={() => {
-                      setSelectedFilterCategory('Commercial');
-                      setCurrentView('manufacturers');
-                      setSelectedCategory('Commercial');
-                      handleCategorySelect('Commercial');
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span className="mr-3 text-lg">✈️</span>
-                    <span>Commercial Aircraft</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedFilterCategory('General Aviation');
-                      setCurrentView('manufacturers');
-                      setSelectedCategory('General Aviation');
-                      handleCategorySelect('General Aviation');
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span className="mr-3 text-lg">🛩️</span>
-                    <span>General Aviation</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedFilterCategory('Military');
-                      setCurrentView('manufacturers');
-                      setSelectedCategory('Military');
-                      handleCategorySelect('Military');
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span className="mr-3 text-lg">🚁</span>
-                    <span>Military Aircraft</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedFilterCategory('Helicopters');
-                      setCurrentView('manufacturers');
-                      setSelectedCategory('Helicopters');
-                      handleCategorySelect('Helicopters');
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  >
-                    <span className="mr-3 text-lg">🚁</span>
-                    <span>Helicopters</span>
-                  </button>
-                  <hr className="my-2" />
-                  <button
-                    onClick={() => setCurrentView('categories')}
-                    className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 font-medium"
-                  >
-                    <span className="mr-3 text-lg">👀</span>
-                    <span>View All Categories</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
+            <button
+              onClick={() => setCurrentView('browse')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'browse' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">✈️</span>
+              <span>Aircraft</span>
+            </button>
             <button
               onClick={() => setCurrentView('top10')}
               className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
@@ -868,24 +805,6 @@ function App() {
             >
               <span className="text-lg mb-1">🏆</span>
               <span>Top 10</span>
-            </button>
-            <button
-              onClick={() => setCurrentView('viewall')}
-              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
-                currentView === 'viewall' ? 'text-blue-300' : 'text-white'
-              }`}
-            >
-              <span className="text-lg mb-1">📋</span>
-              <span>View All</span>
-            </button>
-            <button
-              onClick={() => setCurrentView('browse')}
-              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
-                currentView === 'browse' ? 'text-blue-300' : 'text-white'
-              }`}
-            >
-              <span className="text-lg mb-1">🔍</span>
-              <span>Browse All</span>
             </button>
             <button
               onClick={() => setCurrentView('mostviewed')}
