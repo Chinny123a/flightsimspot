@@ -2421,6 +2421,7 @@ function App() {
         {currentView === 'edit' && renderEditAircraftView()}
         {currentView === 'top10' && renderTop10View()}
         {currentView === 'viewall' && renderViewAllPage()}
+        {currentView === 'browse' && renderBrowseAllView()}
         {currentView === 'mostviewed' && renderMostViewedPage()}
         {currentView === 'trending' && renderTrendingPage()}
         {currentView === 'admin' && renderAdminDashboard()}
