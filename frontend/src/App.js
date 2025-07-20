@@ -2400,10 +2400,41 @@ function App() {
         {/* Main Content Area */}
         <div className="flex-1 p-6">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Browse All Aircraft</h1>
-            <p className="text-gray-600 mt-2">
-              Showing {filteredAircraft.length} of {allAircraft.length} aircraft
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Browse All Aircraft</h1>
+                <p className="text-gray-600 mt-2">
+                  Showing <span className="font-semibold text-blue-600">{getSortedAircraft().length}</span> of {allAircraft.length} aircraft
+                  {sortConfig.key && (
+                    <span className="text-sm text-gray-500 ml-2">
+                      • Sorted by {sortConfig.key.replace('_', ' ')} {sortConfig.direction === 'ascending' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </p>
+              </div>
+              
+              {/* Clear all filters button */}
+              {(filters.selectedDevelopers.length > 0 || filters.selectedManufacturers.length > 0 || 
+                filters.selectedCategories.length > 0 || filters.selectedCompatibility.length > 0 || 
+                filters.priceType.length > 0 || filters.selectedRatings.length > 0 || 
+                filters.searchText || filters.priceRange[0] > 0 || filters.priceRange[1] < 200) && (
+                <button
+                  onClick={() => setFilters({
+                    priceRange: [0, 200],
+                    selectedDevelopers: [],
+                    selectedManufacturers: [],
+                    selectedCategories: [],
+                    selectedRatings: [],
+                    selectedCompatibility: [],
+                    priceType: [],
+                    searchText: ''
+                  })}
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
             
             {/* Active Filters */}
             {(filters.selectedDevelopers.length > 0 || filters.selectedManufacturers.length > 0 || 
