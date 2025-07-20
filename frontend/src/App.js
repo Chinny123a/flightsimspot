@@ -113,6 +113,7 @@ function App() {
     fetchRecentAircraft();
     fetchAnalytics();
     fetchWelcomeMessage();
+    fetchAllManufacturers();
   }, [currentView]);
 
   const checkAuthStatus = async () => {
