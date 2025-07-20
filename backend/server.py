@@ -508,7 +508,7 @@ async def verify_google_token(request: Request):
 @app.get("/api/admin/stats")
 async def get_admin_stats(request: Request):
     """Get admin dashboard statistics"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     if not user or not user.get('is_admin'):
         raise HTTPException(status_code=403, detail="Admin access required")
     
