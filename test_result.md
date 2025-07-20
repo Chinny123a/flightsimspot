@@ -219,6 +219,30 @@ backend:
           agent: "testing"
           comment: "✅ TESTED: Aircraft model updated with view_count (default 0) and last_viewed fields. All aircraft endpoints return these fields correctly. Archived aircraft properly excluded from analytics. View tracking integrates seamlessly with existing aircraft data structure."
 
+  - task: "Admin Dashboard Stats API"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Admin stats endpoint exists but showing 0s for all values. Issue with authentication or database collection access in get_admin_stats function."
+
+  - task: "Welcome Message Backend"
+    implemented: false
+    working: false
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "main"
+          comment: "Backend support for welcome message storage and retrieval needs to be implemented."
+
 frontend:
   - task: "Convert Aircraft Detail Modal to Full Page"
     implemented: true
