@@ -14,7 +14,7 @@ function App() {
   const [selectedAircraft, setSelectedAircraft] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState('categories'); // 'categories', 'manufacturers', 'simulations', 'aircraft', 'edit', 'browse'
+  const [currentView, setCurrentView] = useState('browse'); // 'categories', 'manufacturers', 'simulations', 'aircraft', 'edit', 'browse'
   const [sortBy, setSortBy] = useState('rating');
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
