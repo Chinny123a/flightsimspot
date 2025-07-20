@@ -103,6 +103,9 @@ function App() {
     if (currentView === 'viewall') {
       fetchAllAircraft();
     }
+    if (currentView === 'browse') {
+      fetchAllAircraft();
+    }
     if (currentView === 'admin' && user?.is_admin) {
       fetchAdminStats();
     }
