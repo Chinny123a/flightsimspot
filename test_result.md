@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Update the frontend to change aircraft detail modal to full-page view, incorporate archive/restore UI, support multiple image display, and fix the 'Edit Aircraft' button for admin users."
+user_problem_statement: "Complete implementation of compatibility field editing (MSFS 2020/2024) in Add New Aircraft form, fix Admin Dashboard statistics showing 0s, and complete Welcome Message Editor with database persistence."
 
 backend:
   - task: "Multiple Images Support"
