@@ -505,6 +505,42 @@ async def verify_google_token(request: Request):
         print(traceback.format_exc())
         raise HTTPException(status_code=400, detail=f"Token verification failed: {str(e)}")
 
+@app.get("/api/admin/stats")
+async def get_admin_stats(request: Request):
+    """Get admin dashboard statistics"""
+    user = get_current_user(request)
+    if not user or not user.get('is_admin'):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        # Get user count
+        total_users = users_collection.count_documents({})
+        
+        # Get aircraft count
+        total_aircraft = aircraft_collection.count_documents({"is_archived": {"$ne": True}})
+        archived_aircraft = aircraft_collection.count_documents({"is_archived": True})
+        
+        # Get review count
+        total_reviews = reviews_collection.count_documents({})
+        
+        # Get recent activity
+        from datetime import datetime, timedelta
+        seven_days_ago = datetime.now() - timedelta(days=7)
+        recent_users = users_collection.count_documents({"created_at": {"$gte": seven_days_ago}})
+        recent_reviews = reviews_collection.count_documents({"created_at": {"$gte": seven_days_ago}})
+        
+        return {
+            "total_users": total_users,
+            "total_aircraft": total_aircraft,
+            "archived_aircraft": archived_aircraft,
+            "total_reviews": total_reviews,
+            "recent_users_7_days": recent_users,
+            "recent_reviews_7_days": recent_reviews
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching admin stats: {str(e)}")
+
 @app.delete("/api/reviews/{review_id}")
 async def delete_review(review_id: str, request: Request):
     """Delete a review (admin only)"""
