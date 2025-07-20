@@ -53,6 +53,7 @@ db = client.aircraft_reviews
 aircraft_collection = db.aircraft
 reviews_collection = db.reviews
 users_collection = db.users
+welcome_messages_collection = db.welcome_messages
 
 # Admin emails
 ADMIN_EMAILS = ["chinny12345@gmail.com"]
