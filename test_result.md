@@ -221,27 +221,33 @@ backend:
 
   - task: "Admin Dashboard Stats API"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "Admin stats endpoint exists but showing 0s for all values. Issue with authentication or database collection access in get_admin_stats function."
+        - working: true
+          agent: "main"
+          comment: "Fixed async/await issue - get_current_user(request) was not being awaited properly. Backend testing confirmed endpoint works correctly with proper authentication."
 
   - task: "Welcome Message Backend"
-    implemented: false
-    working: false
+    implemented: true
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
           agent: "main"
           comment: "Backend support for welcome message storage and retrieval needs to be implemented."
+        - working: true
+          agent: "main"
+          comment: "Fully implemented welcome message endpoints: GET /api/welcome-message (public) and PUT /api/welcome-message (admin only). Added WelcomeMessage model and welcome_messages_collection. Backend testing confirmed functionality."
 
 frontend:
   - task: "Convert Aircraft Detail Modal to Full Page"
