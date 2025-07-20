@@ -513,21 +513,46 @@ async def get_admin_stats(request: Request):
         raise HTTPException(status_code=403, detail="Admin access required")
     
     try:
-        # Get user count
-        total_users = users_collection.count_documents({})
+        # Get database reference
+        db = client.aircraft_reviews
         
-        # Get aircraft count
-        total_aircraft = aircraft_collection.count_documents({"is_archived": {"$ne": True}})
-        archived_aircraft = aircraft_collection.count_documents({"is_archived": True})
+        # List all collections to debug
+        collections = db.list_collection_names()
+        print(f"Available collections: {collections}")
+        
+        # Get user count (users might be stored as 'users' or similar)
+        try:
+            total_users = db.users.count_documents({})
+        except:
+            total_users = 0
+        
+        # Get aircraft count (should be 'aircraft')
+        try:
+            total_aircraft = db.aircraft.count_documents({"is_archived": {"$ne": True}})
+            archived_aircraft = db.aircraft.count_documents({"is_archived": True})
+        except:
+            total_aircraft = 0
+            archived_aircraft = 0
         
         # Get review count
-        total_reviews = reviews_collection.count_documents({})
+        try:
+            total_reviews = db.reviews.count_documents({})
+        except:
+            total_reviews = 0
         
-        # Get recent activity
+        # Get recent activity (only if collections exist)
         from datetime import datetime, timedelta
         seven_days_ago = datetime.now() - timedelta(days=7)
-        recent_users = users_collection.count_documents({"created_at": {"$gte": seven_days_ago}})
-        recent_reviews = reviews_collection.count_documents({"created_at": {"$gte": seven_days_ago}})
+        
+        try:
+            recent_users = db.users.count_documents({"created_at": {"$gte": seven_days_ago}})
+        except:
+            recent_users = 0
+            
+        try:
+            recent_reviews = db.reviews.count_documents({"created_at": {"$gte": seven_days_ago}})
+        except:
+            recent_reviews = 0
         
         return {
             "total_users": total_users,
@@ -535,10 +560,12 @@ async def get_admin_stats(request: Request):
             "archived_aircraft": archived_aircraft,
             "total_reviews": total_reviews,
             "recent_users_7_days": recent_users,
-            "recent_reviews_7_days": recent_reviews
+            "recent_reviews_7_days": recent_reviews,
+            "debug_collections": collections  # For debugging
         }
         
     except Exception as e:
+        print(f"Admin stats error: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching admin stats: {str(e)}")
 
 @app.delete("/api/reviews/{review_id}")
