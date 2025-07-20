@@ -39,6 +39,14 @@ function App() {
     category_analytics: [],
     total_views: 0
   });
+  const [adminStats, setAdminStats] = useState({
+    total_users: 0,
+    total_aircraft: 0,
+    archived_aircraft: 0,
+    total_reviews: 0,
+    recent_users_7_days: 0,
+    recent_reviews_7_days: 0
+  });
   const [developers, setDevelopers] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   
