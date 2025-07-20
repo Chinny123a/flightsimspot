@@ -920,7 +920,7 @@ class AircraftAPITester:
                 print(f"   ❌ No message field in response")
                 return False
         
-        # Test PUT welcome message without auth (should fail with 403)
+        # Test PUT welcome message without auth (should fail with 401 - authentication required first)
         test_message = {
             "message": "Test welcome message update"
         }
@@ -929,13 +929,13 @@ class AircraftAPITester:
             "Update Welcome Message (Unauthorized)",
             "PUT",
             "api/welcome-message",
-            403,
+            401,
             data=test_message
         )
         
         if success2 and isinstance(response2, dict):
-            if "Admin access required" in response2.get('detail', ''):
-                print(f"   ✅ Correctly requires admin authentication")
+            if "Authentication required" in response2.get('detail', ''):
+                print(f"   ✅ Correctly requires authentication first")
             else:
                 print(f"   ⚠️  Unexpected error message: {response2}")
         
