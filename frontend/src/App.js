@@ -50,6 +50,20 @@ function App() {
   const [developers, setDevelopers] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   
+  // Browse page filters
+  const [filters, setFilters] = useState({
+    priceRange: [0, 200],
+    selectedDevelopers: [],
+    selectedManufacturers: [],
+    selectedCategories: [],
+    selectedRatings: [],
+    selectedCompatibility: [],
+    priceType: [], // ['Paid', 'Freeware']
+    searchText: ''
+  });
+  const [filteredAircraft, setFilteredAircraft] = useState([]);
+  const [allManufacturers, setAllManufacturers] = useState([]);
+  
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
     content: '',
