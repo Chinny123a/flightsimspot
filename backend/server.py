@@ -1038,6 +1038,45 @@ async def get_user_reviews(user_id: str):
     
     return reviews
 
+# Welcome Message Routes
+
+@app.get("/api/welcome-message")
+async def get_welcome_message():
+    """Get the current welcome message"""
+    try:
+        # Get the most recent welcome message
+        welcome = welcome_messages_collection.find_one({}, {"_id": 0}, sort=[("updated_at", -1)])
+        if welcome:
+            return {"message": welcome["message"]}
+        else:
+            # Return default message if none exists
+            return {"message": "Welcome to FlightSimSpot! Your ultimate destination for Microsoft Flight Simulator aircraft reviews. Discover the best aircraft from our community of flight simulation enthusiasts."}
+    except Exception as e:
+        print(f"Error fetching welcome message: {e}")
+        return {"message": "Welcome to FlightSimSpot! Your ultimate destination for Microsoft Flight Simulator aircraft reviews."}
+
+@app.put("/api/welcome-message")
+async def update_welcome_message(request: Request, welcome_data: WelcomeMessageUpdate):
+    """Update the welcome message (admin only)"""
+    user = await require_admin(request)
+    
+    try:
+        # Create new welcome message entry
+        welcome_message = {
+            "id": str(uuid.uuid4()),
+            "message": welcome_data.message,
+            "updated_at": datetime.now(),
+            "updated_by": user["email"]
+        }
+        
+        # Insert the new message
+        welcome_messages_collection.insert_one(welcome_message)
+        
+        return {"status": "success", "message": "Welcome message updated successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating welcome message: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
