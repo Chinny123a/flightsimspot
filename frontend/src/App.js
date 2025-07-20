@@ -1521,6 +1521,21 @@ function App() {
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">Features/Tags</label>
+              <input
+                type="text"
+                value={aircraftFormData.features ? aircraftFormData.features.join(', ') : ''}
+                onChange={(e) => setAircraftFormData({
+                  ...aircraftFormData, 
+                  features: e.target.value.split(',').map(f => f.trim()).filter(f => f)
+                })}
+                className="w-full border rounded-lg px-3 py-2"
+                placeholder="e.g., Study Level, VNAV, Realistic Systems (separate with commas)"
+              />
+              <p className="text-sm text-gray-500 mt-1">Separate features with commas. These appear as tags on the aircraft.</p>
+            </div>
+
             <div className="flex space-x-4">
               <button
                 type="submit"
