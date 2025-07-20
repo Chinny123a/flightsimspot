@@ -206,6 +206,19 @@ function App() {
     }
   };
 
+  const fetchAdminStats = async () => {
+    if (!user?.is_admin) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/admin/stats`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setAdminStats(data);
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+    }
+  };
+
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       console.log('Google login attempt with credential:', credentialResponse.credential ? 'present' : 'missing');
