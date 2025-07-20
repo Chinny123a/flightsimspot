@@ -2502,6 +2502,55 @@ function App() {
                   <p className="text-sm text-gray-500 mt-1">Separate features with commas. These appear as tags on the aircraft.</p>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium mb-1">Compatibility</label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={aircraftFormData.compatibility.includes('MSFS 2020')}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAircraftFormData({
+                              ...aircraftFormData,
+                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MSFS 2020'), 'MSFS 2020']
+                            });
+                          } else {
+                            setAircraftFormData({
+                              ...aircraftFormData,
+                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MSFS 2020')
+                            });
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span>MSFS 2020</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={aircraftFormData.compatibility.includes('MSFS 2024')}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setAircraftFormData({
+                              ...aircraftFormData,
+                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MSFS 2024'), 'MSFS 2024']
+                            });
+                          } else {
+                            setAircraftFormData({
+                              ...aircraftFormData,
+                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MSFS 2024')
+                            });
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span>MSFS 2024</span>
+                    </label>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">Select which Microsoft Flight Simulator versions this aircraft supports</p>
+                </div>
+
                 <div className="flex space-x-2">
                   <button
                     type="submit"
