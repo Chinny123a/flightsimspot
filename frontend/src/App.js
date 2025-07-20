@@ -2129,6 +2129,372 @@ function App() {
     </div>
   );
 
+  const renderBrowseAllView = () => (
+    <div className="bg-gray-50 min-h-screen">
+      <div className="flex">
+        {/* Left Filter Sidebar */}
+        <div className="w-80 bg-white shadow-lg">
+          <div className="p-6 border-b">
+            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <button
+              onClick={() => setFilters({
+                priceRange: [0, 200],
+                selectedDevelopers: [],
+                selectedManufacturers: [],
+                selectedCategories: [],
+                selectedRatings: [],
+                selectedCompatibility: [],
+                priceType: [],
+                searchText: ''
+              })}
+              className="text-sm text-blue-600 hover:text-blue-800 mt-2"
+            >
+              Clear All
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6 max-h-screen overflow-y-auto">
+            {/* Search */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <input
+                type="text"
+                value={filters.searchText}
+                onChange={(e) => updateFilter('searchText', e.target.value)}
+                placeholder="Search aircraft..."
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Price Range: ${filters.priceRange[0]} - ${filters.priceRange[1]}
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="200"
+                  value={filters.priceRange[0]}
+                  onChange={(e) => updateFilter('priceRange', [parseInt(e.target.value), filters.priceRange[1]])}
+                  className="w-full"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="200"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => updateFilter('priceRange', [filters.priceRange[0], parseInt(e.target.value)])}
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            {/* Price Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Price Type</label>
+              <div className="space-y-2">
+                {['Paid', 'Freeware'].map(type => (
+                  <label key={type} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.priceType.includes(type)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('priceType', [...filters.priceType, type]);
+                        } else {
+                          updateFilter('priceType', filters.priceType.filter(t => t !== type));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Developers */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Developers</label>
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {developers.map(dev => (
+                  <label key={dev} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.selectedDevelopers.includes(dev)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('selectedDevelopers', [...filters.selectedDevelopers, dev]);
+                        } else {
+                          updateFilter('selectedDevelopers', filters.selectedDevelopers.filter(d => d !== dev));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{dev}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Manufacturers */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Aircraft Manufacturers</label>
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {allManufacturers.map(manufacturer => (
+                  <label key={manufacturer} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.selectedManufacturers.includes(manufacturer)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('selectedManufacturers', [...filters.selectedManufacturers, manufacturer]);
+                        } else {
+                          updateFilter('selectedManufacturers', filters.selectedManufacturers.filter(m => m !== manufacturer));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{manufacturer}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Categories */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Categories</label>
+              <div className="space-y-2">
+                {allCategories.map(category => (
+                  <label key={category} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.selectedCategories.includes(category)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('selectedCategories', [...filters.selectedCategories, category]);
+                        } else {
+                          updateFilter('selectedCategories', filters.selectedCategories.filter(c => c !== category));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{category}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Rating Filter */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Minimum Rating</label>
+              <div className="space-y-2">
+                {[5, 4, 3, 2, 1].map(rating => (
+                  <label key={rating} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.selectedRatings.includes(rating)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('selectedRatings', [...filters.selectedRatings, rating]);
+                        } else {
+                          updateFilter('selectedRatings', filters.selectedRatings.filter(r => r !== rating));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{rating}+ Stars</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Compatibility */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Compatibility</label>
+              <div className="space-y-2">
+                {['MSFS 2024', 'MSFS 2020'].map(compat => (
+                  <label key={compat} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={filters.selectedCompatibility.includes(compat)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          updateFilter('selectedCompatibility', [...filters.selectedCompatibility, compat]);
+                        } else {
+                          updateFilter('selectedCompatibility', filters.selectedCompatibility.filter(c => c !== compat));
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    <span className="text-sm text-gray-700">{compat}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 p-6">
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-gray-900">Browse All Aircraft</h1>
+            <p className="text-gray-600 mt-2">
+              Showing {filteredAircraft.length} of {allAircraft.length} aircraft
+            </p>
+            
+            {/* Active Filters */}
+            {(filters.selectedDevelopers.length > 0 || filters.selectedManufacturers.length > 0 || 
+              filters.selectedCategories.length > 0 || filters.selectedCompatibility.length > 0 || 
+              filters.priceType.length > 0 || filters.selectedRatings.length > 0 || 
+              filters.searchText) && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {filters.searchText && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center">
+                    Search: "{filters.searchText}"
+                    <button
+                      onClick={() => updateFilter('searchText', '')}
+                      className="ml-2 text-blue-600 hover:text-blue-800"
+                    >×</button>
+                  </span>
+                )}
+                {filters.selectedDevelopers.map(dev => (
+                  <span key={dev} className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm flex items-center">
+                    {dev}
+                    <button
+                      onClick={() => updateFilter('selectedDevelopers', filters.selectedDevelopers.filter(d => d !== dev))}
+                      className="ml-2 text-green-600 hover:text-green-800"
+                    >×</button>
+                  </span>
+                ))}
+                {filters.selectedManufacturers.map(man => (
+                  <span key={man} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center">
+                    {man}
+                    <button
+                      onClick={() => updateFilter('selectedManufacturers', filters.selectedManufacturers.filter(m => m !== man))}
+                      className="ml-2 text-purple-600 hover:text-purple-800"
+                    >×</button>
+                  </span>
+                ))}
+                {filters.selectedCategories.map(cat => (
+                  <span key={cat} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm flex items-center">
+                    {cat}
+                    <button
+                      onClick={() => updateFilter('selectedCategories', filters.selectedCategories.filter(c => c !== cat))}
+                      className="ml-2 text-orange-600 hover:text-orange-800"
+                    >×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Aircraft Table */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Aircraft
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Developer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Rating
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Compatibility
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Views
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredAircraft.map((aircraft) => (
+                  <tr
+                    key={aircraft.id}
+                    className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => openAircraftDetails(aircraft)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <img
+                          src={aircraft.image_url}
+                          alt={aircraft.name}
+                          className="h-12 w-16 object-cover rounded mr-4"
+                        />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{aircraft.name}</div>
+                          <div className="text-sm text-gray-500">{aircraft.aircraft_manufacturer}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {aircraft.developer}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        {aircraft.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{aircraft.price}</div>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        aircraft.price_type === 'Paid'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {aircraft.price_type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="text-sm text-yellow-400">{renderStars(aircraft.average_rating)}</div>
+                        <div className="text-sm text-gray-500 ml-2">
+                          {aircraft.average_rating > 0 ? aircraft.average_rating.toFixed(1) : 'No rating'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-1">
+                        {aircraft.compatibility && aircraft.compatibility.map((comp) => (
+                          <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                            {comp}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {aircraft.view_count || 0}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {filteredAircraft.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No aircraft match your filters</h3>
+                <p className="text-gray-500">Try adjusting your filter criteria to see more results.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderMostViewedPage = () => (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
