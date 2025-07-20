@@ -883,6 +883,82 @@ class AircraftAPITester:
         
         return True
 
+    def test_admin_stats_endpoint_unauthorized(self):
+        """Test admin stats endpoint without authentication - should fail with 403"""
+        success, response = self.run_test(
+            "Get Admin Stats (Unauthorized)",
+            "GET",
+            "api/admin/stats",
+            403
+        )
+        
+        if success and isinstance(response, dict):
+            if "Admin access required" in response.get('detail', ''):
+                print(f"   ✅ Correctly returns 403 with proper error message")
+            else:
+                print(f"   ⚠️  Unexpected error message: {response}")
+        
+        return success
+
+    def test_welcome_message_endpoints(self):
+        """Test welcome message GET and PUT endpoints"""
+        # Test GET welcome message (should work without auth)
+        success1, response1 = self.run_test(
+            "Get Welcome Message (No Auth Required)",
+            "GET",
+            "api/welcome-message",
+            200
+        )
+        
+        if success1 and isinstance(response1, dict):
+            message = response1.get('message')
+            if message:
+                print(f"   ✅ Welcome message retrieved: {message[:50]}...")
+            else:
+                print(f"   ❌ No message field in response")
+                return False
+        
+        # Test PUT welcome message without auth (should fail with 403)
+        test_message = {
+            "message": "Test welcome message update"
+        }
+        
+        success2, response2 = self.run_test(
+            "Update Welcome Message (Unauthorized)",
+            "PUT",
+            "api/welcome-message",
+            403,
+            data=test_message
+        )
+        
+        if success2 and isinstance(response2, dict):
+            if "Admin access required" in response2.get('detail', ''):
+                print(f"   ✅ Correctly requires admin authentication")
+            else:
+                print(f"   ⚠️  Unexpected error message: {response2}")
+        
+        return success1 and success2
+
+    def test_delete_review_endpoint_unauthorized(self):
+        """Test delete review endpoint without authentication - should fail with 403"""
+        # Use a dummy review ID since we're testing unauthorized access
+        dummy_review_id = "test-review-id-123"
+        
+        success, response = self.run_test(
+            f"Delete Review (Unauthorized): {dummy_review_id}",
+            "DELETE",
+            f"api/reviews/{dummy_review_id}",
+            403
+        )
+        
+        if success and isinstance(response, dict):
+            if "Admin access required" in response.get('detail', ''):
+                print(f"   ✅ Correctly requires admin authentication")
+            else:
+                print(f"   ⚠️  Unexpected error message: {response}")
+        
+        return success
+
 def main():
     print("🚀 Starting Aircraft Review Platform API Tests")
     print("=" * 60)
