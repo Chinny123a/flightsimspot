@@ -2295,21 +2295,24 @@ function App() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Compatibility</label>
               <div className="space-y-2">
-                {['MSFS 2024', 'MSFS 2020'].map(compat => (
-                  <label key={compat} className="flex items-center">
+                {[
+                  { display: 'MSFS 2024', value: 'MS2024' },
+                  { display: 'MSFS 2020', value: 'MS2020' }
+                ].map(compat => (
+                  <label key={compat.value} className="flex items-center">
                     <input
                       type="checkbox"
-                      checked={filters.selectedCompatibility.includes(compat)}
+                      checked={filters.selectedCompatibility.includes(compat.value)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          updateFilter('selectedCompatibility', [...filters.selectedCompatibility, compat]);
+                          updateFilter('selectedCompatibility', [...filters.selectedCompatibility, compat.value]);
                         } else {
-                          updateFilter('selectedCompatibility', filters.selectedCompatibility.filter(c => c !== compat));
+                          updateFilter('selectedCompatibility', filters.selectedCompatibility.filter(c => c !== compat.value));
                         }
                       }}
                       className="mr-2"
                     />
-                    <span className="text-sm text-gray-700">{compat}</span>
+                    <span className="text-sm text-gray-700">{compat.display}</span>
                   </label>
                 ))}
               </div>
