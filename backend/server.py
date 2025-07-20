@@ -33,7 +33,7 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://bab5abbb-d186-43a4-b879-6d8d6da83200.preview.emergentagent.com",  # Development
+        "https://7268f3ac-9f43-409d-901e-f3b4c6052145.preview.emergentagent.com",  # Development
         "https://flightsimspot.com",  # Production domain
         "https://www.flightsimspot.com",  # Production with www
         "https://flightsimspot.vercel.app",  # Vercel deployment URL
