@@ -222,6 +222,41 @@ function App() {
     }
   };
 
+  const fetchWelcomeMessage = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/welcome-message`);
+      const data = await response.json();
+      setWelcomeMessage(data.message);
+    } catch (error) {
+      console.error('Error fetching welcome message:', error);
+      setWelcomeMessage('Welcome to FlightSimSpot! Your ultimate destination for Microsoft Flight Simulator aircraft reviews.');
+    }
+  };
+
+  const updateWelcomeMessage = async (message) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/welcome-message`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ message })
+      });
+      
+      if (response.ok) {
+        setWelcomeMessage(message);
+        return true;
+      } else {
+        console.error('Failed to update welcome message');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error updating welcome message:', error);
+      return false;
+    }
+  };
+
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       console.log('Google login attempt with credential:', credentialResponse.credential ? 'present' : 'missing');
