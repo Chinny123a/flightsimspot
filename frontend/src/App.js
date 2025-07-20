@@ -67,6 +67,7 @@ function App() {
     key: null,
     direction: 'ascending'
   });
+  const [viewMode, setViewMode] = useState('detailed'); // 'detailed' or 'compact'
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
