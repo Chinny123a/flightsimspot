@@ -2078,6 +2078,7 @@ function App() {
         {currentView === 'viewall' && renderViewAllPage()}
         {currentView === 'mostviewed' && renderMostViewedPage()}
         {currentView === 'trending' && renderTrendingPage()}
+        {currentView === 'admin' && renderAdminDashboard()}
 
         {/* Welcome Message Editor Modal */}
         {showWelcomeEditor && (
