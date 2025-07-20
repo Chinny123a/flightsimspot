@@ -349,6 +349,59 @@ function App() {
     }));
   };
 
+  // Sorting functionality
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortedAircraft = () => {
+    let sortableAircraft = [...filteredAircraft];
+    if (sortConfig.key !== null) {
+      sortableAircraft.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        // Handle special sorting cases
+        if (sortConfig.key === 'price') {
+          // Extract numeric value from price string
+          const aPrice = a.price_type === 'Freeware' ? 0 : parseFloat(a.price?.match(/[\d.]+/)?.[0] || 0);
+          const bPrice = b.price_type === 'Freeware' ? 0 : parseFloat(b.price?.match(/[\d.]+/)?.[0] || 0);
+          aValue = aPrice;
+          bValue = bPrice;
+        } else if (sortConfig.key === 'view_count') {
+          aValue = a.view_count || 0;
+          bValue = b.view_count || 0;
+        } else if (sortConfig.key === 'average_rating') {
+          aValue = a.average_rating || 0;
+          bValue = b.average_rating || 0;
+        } else if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableAircraft;
+  };
+
+  const getSortIcon = (column) => {
+    if (sortConfig.key === column) {
+      return sortConfig.direction === 'ascending' ? ' ↑' : ' ↓';
+    }
+    return '';
+  };
+
   const fetchWelcomeMessage = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/welcome-message`);
