@@ -356,9 +356,7 @@ test_plan:
     - "Admin Dashboard Display"
     - "Welcome Message Editor Frontend"
     - "Welcome Message Backend"
-  stuck_tasks: 
-    - "Admin Dashboard Stats API"
-    - "Admin Dashboard Display"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
