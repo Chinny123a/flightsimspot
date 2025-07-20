@@ -63,6 +63,10 @@ function App() {
   });
   const [filteredAircraft, setFilteredAircraft] = useState([]);
   const [allManufacturers, setAllManufacturers] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'ascending'
+  });
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
