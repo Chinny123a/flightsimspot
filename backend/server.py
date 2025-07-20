@@ -571,7 +571,7 @@ async def get_admin_stats(request: Request):
 @app.delete("/api/reviews/{review_id}")
 async def delete_review(review_id: str, request: Request):
     """Delete a review (admin only)"""
-    user = get_current_user(request)
+    user = await get_current_user(request)
     if not user or not user.get('is_admin'):
         raise HTTPException(status_code=403, detail="Admin access required")
     
