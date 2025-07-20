@@ -818,6 +818,15 @@ function App() {
               <span>View All</span>
             </button>
             <button
+              onClick={() => setCurrentView('browse')}
+              className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
+                currentView === 'browse' ? 'text-blue-300' : 'text-white'
+              }`}
+            >
+              <span className="text-lg mb-1">🔍</span>
+              <span>Browse All</span>
+            </button>
+            <button
               onClick={() => setCurrentView('mostviewed')}
               className={`flex flex-col items-center px-3 py-2 text-sm font-medium hover:text-blue-300 transition-colors ${
                 currentView === 'mostviewed' ? 'text-blue-300' : 'text-white'
