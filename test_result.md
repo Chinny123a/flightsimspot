@@ -336,11 +336,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Convert Aircraft Detail Modal to Full Page"
-    - "Fix Edit Aircraft Button"
-    - "Multiple Images Display"
-    - "Archive/Restore UI for Admins"
-  stuck_tasks: []
+    - "Compatibility Field in Add New Aircraft Form"
+    - "Admin Dashboard Stats API"  
+    - "Admin Dashboard Display"
+    - "Welcome Message Editor Frontend"
+    - "Welcome Message Backend"
+  stuck_tasks: 
+    - "Admin Dashboard Stats API"
+    - "Admin Dashboard Display"
   test_all: false
   test_priority: "high_first"
 
