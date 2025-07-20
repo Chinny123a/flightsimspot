@@ -920,12 +920,20 @@ function App() {
               </button>
             )}
             <div className="prose prose-lg mx-auto text-gray-700">
-              <p className="mb-4">
-                Welcome to FlightSimSpot, the premier destination for flight simulation enthusiasts seeking honest, detailed reviews of aircraft for Microsoft Flight Simulator 2024 and 2020. Our mission is simple: to help simmers discover the best aircraft experiences, whether you're searching for study-level commercial jets, authentic general aviation aircraft, or specialised military and helicopter simulations. Every aircraft in our database is carefully reviewed, providing you with genuine insights into flight models, system depth, visual quality, and overall value.
-              </p>
-              <p>
-                FlightSimSpot aims to catalogue all available aircraft and reviews of both premium payware and exceptional freeware aircraft. As we grow, we're expanding beyond aircraft to include scenery, hardware reviews, and comprehensive flight simulation resources. Whether you're a seasoned virtual aviator or just beginning your flight sim journey, you'll find everything you need to make informed decisions about your next virtual cockpit adventure.
-              </p>
+              <div className="mb-4">
+                {welcomeMessage ? (
+                  <p>{welcomeMessage}</p>
+                ) : (
+                  <>
+                    <p className="mb-4">
+                      Welcome to FlightSimSpot, the premier destination for flight simulation enthusiasts seeking honest, detailed reviews of aircraft for Microsoft Flight Simulator 2024 and 2020. Our mission is simple: to help simmers discover the best aircraft experiences, whether you're searching for study-level commercial jets, authentic general aviation aircraft, or specialised military and helicopter simulations. Every aircraft in our database is carefully reviewed, providing you with genuine insights into flight models, system depth, visual quality, and overall value.
+                    </p>
+                    <p>
+                      FlightSimSpot aims to catalogue all available aircraft and reviews of both premium payware and exceptional freeware aircraft. As we grow, we're expanding beyond aircraft to include scenery, hardware reviews, and comprehensive flight simulation resources. Whether you're a seasoned virtual aviator or just beginning your flight sim journey, you'll find everything you need to make informed decisions about your next virtual cockpit adventure.
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
