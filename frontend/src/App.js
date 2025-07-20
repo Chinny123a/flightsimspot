@@ -1011,7 +1011,7 @@ function App() {
           >
             <h3 className="text-2xl font-bold text-gray-900 mb-3">{manufacturerName}</h3>
             <p className="text-gray-600 mb-4">
-              {data.count} simulations available
+              {data.count} aircraft available
             </p>
             <div className="mb-4">
               <p className="text-sm font-medium text-gray-700 mb-2">Models:</p>
