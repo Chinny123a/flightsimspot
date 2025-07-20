@@ -2080,26 +2080,6 @@ function App() {
   const renderAdminDashboard = () => {
     if (!user?.is_admin) return null;
 
-    const [adminStats, setAdminStats] = React.useState({
-      total_users: 0,
-      total_aircraft: 0,
-      archived_aircraft: 0,
-      total_reviews: 0,
-      recent_users_7_days: 0,
-      recent_reviews_7_days: 0
-    });
-
-    React.useEffect(() => {
-      if (user?.is_admin) {
-        fetch(`${BACKEND_URL}/api/admin/stats`, {
-          credentials: 'include'
-        })
-        .then(r => r.json())
-        .then(data => setAdminStats(data))
-        .catch(console.error);
-      }
-    }, [user]);
-
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
