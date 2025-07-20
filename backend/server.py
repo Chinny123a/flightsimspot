@@ -505,6 +505,24 @@ async def verify_google_token(request: Request):
         print(traceback.format_exc())
         raise HTTPException(status_code=400, detail=f"Token verification failed: {str(e)}")
 
+@app.delete("/api/reviews/{review_id}")
+async def delete_review(review_id: str, request: Request):
+    """Delete a review (admin only)"""
+    user = get_current_user(request)
+    if not user or not user.get('is_admin'):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        # Delete the review
+        result = reviews_collection.delete_one({"id": review_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Review not found")
+        
+        return {"status": "success", "message": "Review deleted successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting review: {str(e)}")
+
 @app.get("/api/auth/me")
 async def get_current_user_info(request: Request):
     """Get current authenticated user"""
