@@ -3573,6 +3573,98 @@ function App() {
           </div>
         )}
 
+        {/* Feedback Form Modal */}
+        {showFeedbackForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl max-w-2xl w-full">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900">Send Feedback</h2>
+                  <button
+                    onClick={() => setShowFeedbackForm(false)}
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                  >
+                    ×
+                  </button>
+                </div>
+                
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (await submitFeedback(feedbackFormData)) {
+                    setShowFeedbackForm(false);
+                    setFeedbackFormData({ name: '', email: '', subject: '', message: '' });
+                    alert('Thank you for your feedback! We\'ll review it soon.');
+                  } else {
+                    alert('Error submitting feedback. Please try again.');
+                  }
+                }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Name</label>
+                      <input
+                        type="text"
+                        value={feedbackFormData.name}
+                        onChange={(e) => setFeedbackFormData({...feedbackFormData, name: e.target.value})}
+                        className="w-full border rounded-lg px-3 py-2"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={feedbackFormData.email}
+                        onChange={(e) => setFeedbackFormData({...feedbackFormData, email: e.target.value})}
+                        className="w-full border rounded-lg px-3 py-2"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Subject</label>
+                    <input
+                      type="text"
+                      value={feedbackFormData.subject}
+                      onChange={(e) => setFeedbackFormData({...feedbackFormData, subject: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="Brief description of your feedback"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium mb-2">Message</label>
+                    <textarea
+                      value={feedbackFormData.message}
+                      onChange={(e) => setFeedbackFormData({...feedbackFormData, message: e.target.value})}
+                      className="w-full border rounded-lg px-3 py-2 h-32"
+                      placeholder="Your detailed feedback, suggestions, or questions..."
+                      required
+                    />
+                  </div>
+                  
+                  <div className="flex space-x-4">
+                    <button
+                      type="submit"
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                      Send Feedback
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowFeedbackForm(false)}
+                      className="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </GoogleOAuthProvider>
   );
