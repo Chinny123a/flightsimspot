@@ -3409,51 +3409,17 @@ function App() {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">Compatibility</label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={aircraftFormData.compatibility.includes('MS2020')}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setAircraftFormData({
-                              ...aircraftFormData,
-                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MS2020'), 'MS2020']
-                            });
-                          } else {
-                            setAircraftFormData({
-                              ...aircraftFormData,
-                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MS2020')
-                            });
-                          }
-                        }}
-                        className="mr-2"
-                      />
-                      <span>MSFS 2020</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={aircraftFormData.compatibility.includes('MS2024')}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setAircraftFormData({
-                              ...aircraftFormData,
-                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MS2024'), 'MS2024']
-                            });
-                          } else {
-                            setAircraftFormData({
-                              ...aircraftFormData,
-                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MS2024')
-                            });
-                          }
-                        }}
-                        className="mr-2"
-                      />
-                      <span>MSFS 2024</span>
-                    </label>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">Select which Microsoft Flight Simulator versions this aircraft supports</p>
+                  <input
+                    type="text"
+                    value={Array.isArray(aircraftFormData.compatibility) ? aircraftFormData.compatibility.join(', ') : aircraftFormData.compatibility || ''}
+                    onChange={(e) => setAircraftFormData({
+                      ...aircraftFormData, 
+                      compatibility: e.target.value.split(',').map(c => c.trim()).filter(c => c)
+                    })}
+                    className="w-full border rounded-lg px-3 py-2"
+                    placeholder="e.g., MSFS 2020, MSFS 2024, X-Plane 12"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">Separate compatibility versions with commas. Future-proof for new simulators!</p>
                 </div>
 
                 <div className="flex space-x-2">
