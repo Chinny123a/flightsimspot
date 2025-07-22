@@ -632,7 +632,7 @@ function App() {
       cockpit_image_url: selectedAircraft.cockpit_image_url || '',
       additional_images: selectedAircraft.additional_images || [],
       release_date: selectedAircraft.release_date || '',
-      compatibility: selectedAircraft.compatibility || ['MS2024'],
+      compatibility: selectedAircraft.compatibility || [],
       download_url: selectedAircraft.download_url || '',
       developer_website: selectedAircraft.developer_website || '',
       features: selectedAircraft.features || []
