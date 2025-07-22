@@ -963,6 +963,13 @@ function App() {
               <span className="text-lg mb-1">🔥</span>
               <span>Trending</span>
             </button>
+            <button
+              onClick={() => setShowFeedbackForm(true)}
+              className="flex flex-col items-center px-3 py-2 text-sm font-medium text-yellow-300 hover:text-yellow-100 transition-colors"
+            >
+              <span className="text-lg mb-1">💬</span>
+              <span>Feedback</span>
+            </button>
             {user?.is_admin && (
               <>
                 <button
