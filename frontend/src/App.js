@@ -367,6 +367,18 @@ function App() {
     }));
   };
 
+  // Helper function to get compatibility list from aircraft
+  const getCompatibilityList = (aircraft) => {
+    if (!aircraft.compatibility) return [];
+    if (Array.isArray(aircraft.compatibility)) {
+      return aircraft.compatibility;
+    }
+    if (typeof aircraft.compatibility === 'string') {
+      return aircraft.compatibility.split(',').map(c => c.trim()).filter(c => c);
+    }
+    return [];
+  };
+
   // Sorting functionality
   const requestSort = (key) => {
     let direction = 'ascending';
