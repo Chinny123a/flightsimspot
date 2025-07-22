@@ -1423,7 +1423,7 @@ function App() {
               </div>
 
               <div className="flex flex-wrap gap-1 mb-3">
-                {aircraft.compatibility.map(compat => (
+                {getCompatibilityList(aircraft).map(compat => (
                   <span key={compat} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
                     {compat}
                   </span>
