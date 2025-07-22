@@ -587,6 +587,10 @@ function App() {
   const handleEditAircraft = () => {
     if (!user?.is_admin || !selectedAircraft) return;
     
+    // Reset custom category state
+    setShowCustomCategory(false);
+    setCustomCategory('');
+    
     setAircraftFormData({
       name: selectedAircraft.name,
       developer: selectedAircraft.developer,
