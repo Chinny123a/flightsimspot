@@ -2436,8 +2436,9 @@ function App() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Compatibility</label>
               <div className="space-y-2">
                 {[
-                  { display: 'MSFS 2024', value: 'MS2024' },
-                  { display: 'MSFS 2020', value: 'MS2020' }
+                  { display: 'MSFS 2024', value: 'MSFS 2024' },
+                  { display: 'MSFS 2020', value: 'MSFS 2020' },
+                  { display: 'X-Plane 12', value: 'X-Plane 12' }
                 ].map(compat => (
                   <label key={compat.value} className="flex items-center">
                     <input
