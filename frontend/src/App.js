@@ -3075,17 +3075,67 @@ function App() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Category</label>
-                    <select
-                      value={aircraftFormData.category}
-                      onChange={(e) => setAircraftFormData({...aircraftFormData, category: e.target.value})}
-                      className="w-full border rounded-lg px-3 py-2"
-                    >
-                      <option value="Commercial">Commercial</option>
-                      <option value="General Aviation">General Aviation</option>
-                      <option value="Military">Military</option>
-                      <option value="Helicopters">Helicopters</option>
-                      <option value="Cargo">Cargo</option>
-                    </select>
+                    <div className="space-y-2">
+                      <select
+                        value={showCustomCategory ? 'custom' : aircraftFormData.category}
+                        onChange={(e) => {
+                          if (e.target.value === 'custom') {
+                            setShowCustomCategory(true);
+                            setCustomCategory('');
+                          } else {
+                            setShowCustomCategory(false);
+                            setAircraftFormData({...aircraftFormData, category: e.target.value});
+                          }
+                        }}
+                        className="w-full border rounded-lg px-3 py-2"
+                      >
+                        {allCategories.map(category => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                        <option value="custom">➕ Add New Category</option>
+                      </select>
+                      
+                      {showCustomCategory && (
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value)}
+                            placeholder="Enter new category name..."
+                            className="flex-1 border rounded-lg px-3 py-2"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (customCategory.trim()) {
+                                setAircraftFormData({...aircraftFormData, category: customCategory.trim()});
+                                setAllCategories(prev => [...new Set([...prev, customCategory.trim()])]);
+                                setShowCustomCategory(false);
+                                setCustomCategory('');
+                              }
+                            }}
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                          >
+                            Add
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowCustomCategory(false);
+                              setCustomCategory('');
+                            }}
+                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
+                      
+                      {showCustomCategory && customCategory && (
+                        <p className="text-sm text-blue-600">New category: "{customCategory}"</p>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Price Type</label>
