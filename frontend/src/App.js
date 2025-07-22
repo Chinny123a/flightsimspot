@@ -2583,51 +2583,115 @@ function App() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  {/* Aircraft Column (Always first) */}
                   <th 
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                     onClick={() => requestSort('name')}
                   >
                     Aircraft{getSortIcon('name')}
                   </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('aircraft_manufacturer')}
-                  >
-                    Manufacturer{getSortIcon('aircraft_manufacturer')}
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('developer')}
-                  >
-                    Developer{getSortIcon('developer')}
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('category')}
-                  >
-                    Category{getSortIcon('category')}
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('price')}
-                  >
-                    Price{getSortIcon('price')}
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('average_rating')}
-                  >
-                    Rating{getSortIcon('average_rating')}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Compatibility
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => requestSort('view_count')}
-                  >
-                    Views{getSortIcon('view_count')}
-                  </th>
+                  
+                  {/* Detailed View Columns */}
+                  {viewMode === 'detailed' && (
+                    <>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('developer')}
+                      >
+                        Developer{getSortIcon('developer')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('aircraft_manufacturer')}
+                      >
+                        Manufacturer{getSortIcon('aircraft_manufacturer')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('aircraft_model')}
+                      >
+                        Aircraft Model{getSortIcon('aircraft_model')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('variant')}
+                      >
+                        Variant{getSortIcon('variant')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('category')}
+                      >
+                        Category{getSortIcon('category')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('price_type')}
+                      >
+                        Price Type{getSortIcon('price_type')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('price')}
+                      >
+                        Price{getSortIcon('price')}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Compatibility
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('average_rating')}
+                      >
+                        Rating{getSortIcon('average_rating')}
+                      </th>
+                    </>
+                  )}
+                  
+                  {/* Compact View Columns */}
+                  {viewMode === 'compact' && (
+                    <>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('aircraft_manufacturer')}
+                      >
+                        Manufacturer{getSortIcon('aircraft_manufacturer')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('developer')}
+                      >
+                        Developer{getSortIcon('developer')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('category')}
+                      >
+                        Category{getSortIcon('category')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('price')}
+                      >
+                        Price{getSortIcon('price')}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Compatibility
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('average_rating')}
+                      >
+                        Rating{getSortIcon('average_rating')}
+                      </th>
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                        onClick={() => requestSort('view_count')}
+                      >
+                        Views{getSortIcon('view_count')}
+                      </th>
+                    </>
+                  )}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -2637,6 +2701,7 @@ function App() {
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => openAircraftDetails(aircraft)}
                   >
+                    {/* Aircraft Column (Always first) */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
@@ -2646,51 +2711,111 @@ function App() {
                         />
                         <div>
                           <div className="text-sm font-medium text-gray-900">{aircraft.name}</div>
-                          <div className="text-sm text-gray-500">{aircraft.aircraft_model}</div>
+                          {viewMode === 'compact' && (
+                            <div className="text-sm text-gray-500">{aircraft.aircraft_model}</div>
+                          )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {aircraft.aircraft_manufacturer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {aircraft.developer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {aircraft.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{aircraft.price}</div>
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        aircraft.price_type === 'Paid'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {aircraft.price_type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="text-sm text-yellow-400">{renderStars(aircraft.average_rating)}</div>
-                        <div className="text-sm text-gray-500 ml-2">
-                          {aircraft.average_rating > 0 ? aircraft.average_rating.toFixed(1) : 'No rating'}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex space-x-1">
-                        {aircraft.compatibility && aircraft.compatibility.map((comp) => (
-                          <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                            {comp === 'MS2024' ? 'MSFS 2024' : comp === 'MS2020' ? 'MSFS 2020' : comp}
+                    
+                    {/* Detailed View Columns */}
+                    {viewMode === 'detailed' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.developer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.aircraft_manufacturer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.aircraft_model}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.variant}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {aircraft.category}
                           </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {aircraft.view_count || 0}
-                    </td>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            aircraft.price_type === 'Paid'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {aircraft.price_type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600">
+                          {aircraft.price}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-1">
+                            {aircraft.compatibility && aircraft.compatibility.map((comp) => (
+                              <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                {comp === 'MS2024' ? 'MSFS 2024' : comp === 'MS2020' ? 'MSFS 2020' : comp}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="text-sm text-yellow-400">{renderStars(aircraft.average_rating)}</div>
+                            <div className="text-sm text-gray-500 ml-2">
+                              {aircraft.average_rating > 0 ? aircraft.average_rating.toFixed(1) : 'No rating'}
+                            </div>
+                          </div>
+                        </td>
+                      </>
+                    )}
+                    
+                    {/* Compact View Columns */}
+                    {viewMode === 'compact' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.aircraft_manufacturer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {aircraft.developer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            {aircraft.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{aircraft.price}</div>
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            aircraft.price_type === 'Paid'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {aircraft.price_type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex space-x-1">
+                            {aircraft.compatibility && aircraft.compatibility.map((comp) => (
+                              <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                                {comp === 'MS2024' ? 'MSFS 2024' : comp === 'MS2020' ? 'MSFS 2020' : comp}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="text-sm text-yellow-400">{renderStars(aircraft.average_rating)}</div>
+                            <div className="text-sm text-gray-500 ml-2">
+                              {aircraft.average_rating > 0 ? aircraft.average_rating.toFixed(1) : 'No rating'}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {aircraft.view_count || 0}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
