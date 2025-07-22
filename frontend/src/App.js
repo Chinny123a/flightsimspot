@@ -1529,7 +1529,7 @@ function App() {
                 <div><strong>Variant:</strong> {selectedAircraft.variant}</div>
                 <div><strong>Category:</strong> {selectedAircraft.category}</div>
                 <div><strong>Price:</strong> {selectedAircraft.price} ({selectedAircraft.price_type})</div>
-                <div><strong>Compatibility:</strong> {selectedAircraft.compatibility.join(', ')}</div>
+                <div><strong>Compatibility:</strong> {getCompatibilityList(selectedAircraft).join(', ')}</div>
                 <div><strong>Release Date:</strong> {selectedAircraft.release_date}</div>
               </div>
               
