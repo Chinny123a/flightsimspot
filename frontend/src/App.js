@@ -311,11 +311,26 @@ function App() {
 
     // Compatibility filter
     if (filters.selectedCompatibility.length > 0) {
-      filtered = filtered.filter(aircraft => 
-        filters.selectedCompatibility.some(compat => 
-          aircraft.compatibility && aircraft.compatibility.includes(compat)
-        )
-      );
+      filtered = filtered.filter(aircraft => {
+        if (!aircraft.compatibility) return false;
+        
+        // Handle both array format (old) and comma-separated string format (new)
+        let compatibilityList;
+        if (Array.isArray(aircraft.compatibility)) {
+          compatibilityList = aircraft.compatibility;
+        } else if (typeof aircraft.compatibility === 'string') {
+          compatibilityList = aircraft.compatibility.split(',').map(c => c.trim()).filter(c => c);
+        } else {
+          return false;
+        }
+        
+        return filters.selectedCompatibility.some(compat => 
+          compatibilityList.some(aircraftCompat => 
+            aircraftCompat.toLowerCase().includes(compat.toLowerCase()) ||
+            compat.toLowerCase().includes(aircraftCompat.toLowerCase())
+          )
+        );
+      });
     }
 
     // Rating filter (assuming ratings are numbers like 4, 5)
