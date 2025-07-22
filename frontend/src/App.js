@@ -3447,17 +3447,17 @@ function App() {
                     <label className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={aircraftFormData.compatibility.includes('MSFS 2020')}
+                        checked={aircraftFormData.compatibility.includes('MS2020')}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setAircraftFormData({
                               ...aircraftFormData,
-                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MSFS 2020'), 'MSFS 2020']
+                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MS2020'), 'MS2020']
                             });
                           } else {
                             setAircraftFormData({
                               ...aircraftFormData,
-                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MSFS 2020')
+                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MS2020')
                             });
                           }
                         }}
@@ -3468,17 +3468,17 @@ function App() {
                     <label className="flex items-center">
                       <input
                         type="checkbox"
-                        checked={aircraftFormData.compatibility.includes('MSFS 2024')}
+                        checked={aircraftFormData.compatibility.includes('MS2024')}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setAircraftFormData({
                               ...aircraftFormData,
-                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MSFS 2024'), 'MSFS 2024']
+                              compatibility: [...aircraftFormData.compatibility.filter(c => c !== 'MS2024'), 'MS2024']
                             });
                           } else {
                             setAircraftFormData({
                               ...aircraftFormData,
-                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MSFS 2024')
+                              compatibility: aircraftFormData.compatibility.filter(c => c !== 'MS2024')
                             });
                           }
                         }}
