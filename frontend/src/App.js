@@ -755,6 +755,17 @@ function App() {
     if (!user || !user.is_admin) return;
 
     try {
+      // Process the form data before submitting
+      const processedFormData = {
+        ...aircraftFormData,
+        // Convert compatibility string to array for backend
+        compatibility: typeof aircraftFormData.compatibility === 'string' 
+          ? aircraftFormData.compatibility.split(',').map(c => c.trim()).filter(c => c)
+          : Array.isArray(aircraftFormData.compatibility) 
+            ? aircraftFormData.compatibility 
+            : []
+      };
+
       let response;
       if (currentView === 'edit' && selectedAircraft) {
         response = await fetch(`${BACKEND_URL}/api/aircraft/${selectedAircraft.id}`, {
@@ -763,7 +774,7 @@ function App() {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify(aircraftFormData)
+          body: JSON.stringify(processedFormData)
         });
       } else {
         response = await fetch(`${BACKEND_URL}/api/aircraft`, {
@@ -772,7 +783,7 @@ function App() {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify(aircraftFormData)
+          body: JSON.stringify(processedFormData)
         });
       }
 
