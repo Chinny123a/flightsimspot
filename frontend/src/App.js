@@ -2751,9 +2751,9 @@ function App() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex space-x-1">
-                            {aircraft.compatibility && aircraft.compatibility.map((comp) => (
+                            {getCompatibilityList(aircraft).map((comp) => (
                               <span key={comp} className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                                {comp === 'MS2024' ? 'MSFS 2024' : comp === 'MS2020' ? 'MSFS 2020' : comp}
+                                {comp}
                               </span>
                             ))}
                           </div>
