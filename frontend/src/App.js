@@ -123,6 +123,7 @@ function App() {
     }
     if (currentView === 'admin' && user?.is_admin) {
       fetchAdminStats();
+      fetchFeedback();
     }
     checkAuthStatus();
     fetchDevelopers();
