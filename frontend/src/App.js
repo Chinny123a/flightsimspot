@@ -613,6 +613,35 @@ function App() {
     setCurrentView('edit');
   };
 
+  const openAddAircraftForm = () => {
+    // Reset custom category state
+    setShowCustomCategory(false);
+    setCustomCategory('');
+    
+    // Reset form data
+    setAircraftFormData({
+      name: '',
+      developer: '',
+      aircraft_manufacturer: '',
+      aircraft_model: '',
+      variant: '',
+      category: allCategories[0] || 'Commercial',
+      price_type: 'Paid',
+      price: '',
+      description: '',
+      image_url: '',
+      cockpit_image_url: '',
+      additional_images: [],
+      release_date: '',
+      compatibility: ['MS2024'],
+      download_url: '',
+      developer_website: '',
+      features: []
+    });
+    
+    setShowAircraftForm(true);
+  };
+
   const handleArchiveAircraft = async () => {
     if (!user?.is_admin || !selectedAircraft) return;
     
