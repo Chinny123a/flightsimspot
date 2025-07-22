@@ -475,6 +475,63 @@ function App() {
     }
   };
 
+  // Feedback functions
+  const submitFeedback = async (feedbackData) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(feedbackData)
+      });
+      
+      if (response.ok) {
+        return true;
+      } else {
+        console.error('Failed to submit feedback');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      return false;
+    }
+  };
+
+  const fetchFeedback = async () => {
+    if (!user?.is_admin) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/admin/feedback`, {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setFeedbackList(data.feedback || []);
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+    }
+  };
+
+  const deleteFeedback = async (feedbackId) => {
+    if (!user?.is_admin) return;
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/admin/feedback/${feedbackId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        setFeedbackList(prev => prev.filter(fb => fb.id !== feedbackId));
+        return true;
+      } else {
+        console.error('Failed to delete feedback');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error deleting feedback:', error);
+      return false;
+    }
+  };
+
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       console.log('Google login attempt with credential:', credentialResponse.credential ? 'present' : 'missing');
