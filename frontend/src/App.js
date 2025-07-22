@@ -2936,7 +2936,7 @@ function App() {
             <h3 className="text-xl font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-4">
               <button
-                onClick={() => setShowAircraftForm(true)}
+                onClick={() => openAddAircraftForm()}
                 className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
                 ➕ Add New Aircraft
