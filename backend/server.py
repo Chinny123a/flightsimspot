@@ -1094,6 +1094,64 @@ async def update_welcome_message(request: Request, welcome_data: WelcomeMessageU
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating welcome message: {str(e)}")
 
+# Feedback Routes
+
+@app.post("/api/feedback")
+async def submit_feedback(request: Request, feedback_data: FeedbackCreate):
+    """Submit feedback (public endpoint)"""
+    try:
+        # Get client info
+        user_agent = request.headers.get("user-agent", "")
+        # In production, you might want to get real IP, but for now we'll skip it for privacy
+        
+        feedback = {
+            "id": str(uuid.uuid4()),
+            "name": feedback_data.name,
+            "email": feedback_data.email,
+            "subject": feedback_data.subject,
+            "message": feedback_data.message,
+            "submitted_at": datetime.now(),
+            "user_agent": user_agent,
+            "ip_address": "hidden"  # Privacy-focused
+        }
+        
+        feedback_collection.insert_one(feedback)
+        
+        return {"status": "success", "message": "Thank you for your feedback! We'll review it soon."}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error submitting feedback: {str(e)}")
+
+@app.get("/api/admin/feedback")
+async def get_feedback(request: Request):
+    """Get all feedback (admin only)"""
+    user = await require_admin(request)
+    
+    try:
+        feedback_list = list(feedback_collection.find({}, {"_id": 0}).sort("submitted_at", -1))
+        return {"feedback": feedback_list}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching feedback: {str(e)}")
+
+@app.delete("/api/admin/feedback/{feedback_id}")
+async def delete_feedback(feedback_id: str, request: Request):
+    """Delete feedback (admin only)"""
+    user = await require_admin(request)
+    
+    try:
+        result = feedback_collection.delete_one({"id": feedback_id})
+        
+        if result.deleted_count == 1:
+            return {"status": "success", "message": "Feedback deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Feedback not found")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting feedback: {str(e)}")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
