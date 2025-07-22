@@ -3168,15 +3168,23 @@ function App() {
                   }
                 }}>
                   <div className="mb-6">
-                    <label className="block text-sm font-medium mb-2">Welcome Message</label>
+                    <label className="block text-sm font-medium mb-2">Welcome Message (HTML Supported)</label>
                     <textarea
                       name="message"
-                      className="w-full border rounded-lg px-3 py-2 h-40"
+                      className="w-full border rounded-lg px-3 py-2 h-60"
                       defaultValue={welcomeMessage || "Welcome to FlightSimSpot! Your ultimate destination for Microsoft Flight Simulator aircraft reviews. Discover the best aircraft from our community of flight simulation enthusiasts."}
-                      placeholder="Enter your welcome message..."
+                      placeholder="Enter your welcome message with HTML..."
                       required
                     />
-                    <p className="text-sm text-gray-500 mt-1">This message will be displayed on the homepage.</p>
+                    <div className="text-sm text-gray-500 mt-2">
+                      <strong>HTML Support:</strong> You can use HTML tags like:
+                      <br />
+                      <code>&lt;p&gt;Paragraph&lt;/p&gt;</code> • 
+                      <code>&lt;a href="https://example.com"&gt;Link&lt;/a&gt;</code> • 
+                      <code>&lt;strong&gt;Bold&lt;/strong&gt;</code> • 
+                      <code>&lt;em&gt;Italic&lt;/em&gt;</code> • 
+                      <code>&lt;br&gt;</code> for line breaks
+                    </div>
                   </div>
                   <div className="flex space-x-4">
                     <button
