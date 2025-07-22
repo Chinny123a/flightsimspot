@@ -1109,7 +1109,7 @@ function App() {
       )}
 
       {/* Trending Aircraft Section */}
-      {analytics.trending && analytics.trending.length > 0 && (
+      {analytics.trending && analytics.trending.length > 0 ? (
         <div className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">🔥 Trending Aircraft</h2>
@@ -1163,6 +1163,63 @@ function App() {
             </div>
           </div>
         </div>
+      ) : (
+        // Fallback: Show most recent 3 aircraft if no trending data
+        recentAircraft.length > 0 && (
+          <div className="bg-white py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">🔥 Popular Aircraft</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {recentAircraft.slice(0, 3).map((aircraft) => (
+                  <div
+                    key={aircraft.id}
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer border-2 border-orange-200"
+                    onClick={() => openAircraftDetails(aircraft)}
+                  >
+                    <div className="aspect-video bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                      <img
+                        src={aircraft.image_url}
+                        alt={aircraft.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentNode.innerHTML = `
+                            <div class="text-white text-center">
+                              <div class="text-4xl mb-2">🔥</div>
+                              <div class="text-sm">${aircraft.variant || aircraft.name}</div>
+                            </div>
+                          `;
+                        }}
+                      />
+                    </div>
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-900">{aircraft.developer} {aircraft.name}</h3>
+                          <p className="text-sm text-gray-500">{aircraft.variant || aircraft.aircraft_model}</p>
+                        </div>
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                          Popular
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">{aircraft.description}</p>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center">
+                          <span className="text-yellow-400 text-lg">{renderStars(aircraft.average_rating)}</span>
+                          <span className="text-sm text-gray-600 ml-2">
+                            {aircraft.average_rating || 0} ({aircraft.total_reviews || 0})
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600">{aircraft.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
       )}
     </>
   );
