@@ -862,7 +862,7 @@ function App() {
             {user?.is_admin && (
               <>
                 <button
-                  onClick={() => setShowAircraftForm(true)}
+                  onClick={() => openAddAircraftForm()}
                   className="flex flex-col items-center px-3 py-2 text-sm font-medium text-green-300 hover:text-green-100 transition-colors"
                 >
                   <span className="text-lg mb-1">➕</span>
