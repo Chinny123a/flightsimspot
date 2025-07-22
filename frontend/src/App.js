@@ -2773,6 +2773,9 @@ function App() {
                             </div>
                           </div>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {aircraft.view_count || 0}
+                        </td>
                       </>
                     )}
                     
