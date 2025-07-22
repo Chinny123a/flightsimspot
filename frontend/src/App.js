@@ -780,7 +780,7 @@ function App() {
           cockpit_image_url: '',
           additional_images: [],
           release_date: '',
-          compatibility: ['MS2024'],
+          compatibility: [],
           download_url: '',
           developer_website: '',
           features: []
