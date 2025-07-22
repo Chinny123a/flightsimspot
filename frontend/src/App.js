@@ -818,7 +818,7 @@ function App() {
           cockpit_image_url: '',
           additional_images: [],
           release_date: '',
-          compatibility: [],
+          compatibility: '',
           download_url: '',
           developer_website: '',
           features: []
