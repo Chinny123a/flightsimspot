@@ -1911,10 +1911,14 @@ function App() {
               <label className="block text-sm font-medium mb-1">Compatibility</label>
               <input
                 type="text"
-                value={Array.isArray(aircraftFormData.compatibility) ? aircraftFormData.compatibility.join(', ') : aircraftFormData.compatibility || ''}
+                value={typeof aircraftFormData.compatibility === 'string' 
+                  ? aircraftFormData.compatibility 
+                  : Array.isArray(aircraftFormData.compatibility) 
+                    ? aircraftFormData.compatibility.join(', ') 
+                    : ''}
                 onChange={(e) => setAircraftFormData({
                   ...aircraftFormData, 
-                  compatibility: e.target.value.split(',').map(c => c.trim()).filter(c => c)
+                  compatibility: e.target.value
                 })}
                 className="w-full border rounded-lg px-3 py-2"
                 placeholder="e.g., MSFS 2020, MSFS 2024, X-Plane 12"
