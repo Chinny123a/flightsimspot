@@ -70,6 +70,14 @@ function App() {
   const [viewMode, setViewMode] = useState('detailed'); // 'detailed' or 'compact'
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackList, setFeedbackList] = useState([]);
+  const [feedbackFormData, setFeedbackFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
