@@ -68,6 +68,8 @@ function App() {
     direction: 'ascending'
   });
   const [viewMode, setViewMode] = useState('detailed'); // 'detailed' or 'compact'
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
