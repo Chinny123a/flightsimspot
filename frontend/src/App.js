@@ -1103,7 +1103,7 @@ function App() {
             <div className="prose prose-lg mx-auto text-gray-700">
               <div className="mb-4">
                 {welcomeMessage ? (
-                  <p>{welcomeMessage}</p>
+                  <div dangerouslySetInnerHTML={{ __html: welcomeMessage }} />
                 ) : (
                   <>
                     <p className="mb-4">
