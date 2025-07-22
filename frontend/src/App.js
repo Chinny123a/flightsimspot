@@ -3190,6 +3190,48 @@ function App() {
             </div>
           </div>
         </div>
+
+        {/* Feedback Management */}
+        <div className="mt-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">User Feedback ({feedbackList.length})</h3>
+            {feedbackList.length === 0 ? (
+              <p className="text-gray-500">No feedback received yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {feedbackList.slice(0, 10).map((feedback) => (
+                  <div key={feedback.id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{feedback.subject}</h4>
+                        <p className="text-sm text-gray-600">From: {feedback.name} ({feedback.email})</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(feedback.submitted_at).toLocaleDateString()} at {new Date(feedback.submitted_at).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to delete this feedback?')) {
+                            await deleteFeedback(feedback.id);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-800 text-sm"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                    <p className="text-gray-700">{feedback.message}</p>
+                  </div>
+                ))}
+                {feedbackList.length > 10 && (
+                  <p className="text-sm text-gray-500 text-center">
+                    Showing 10 of {feedbackList.length} feedback entries
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     );
   };
