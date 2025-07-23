@@ -998,6 +998,119 @@ async def update_aircraft_rating(aircraft_id: str):
             }
         )
 
+@app.post("/api/aircraft/bulk-upload")
+async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
+    """Bulk upload aircraft from CSV file (admin only)"""
+    user = await require_admin(request)
+    
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(status_code=400, detail="File must be a CSV")
+    
+    try:
+        # Read CSV content
+        contents = await file.read()
+        csv_text = contents.decode('utf-8')
+        csv_reader = csv.DictReader(io.StringIO(csv_text))
+        
+        imported_count = 0
+        skipped_count = 0
+        errors = []
+        
+        # Required fields for validation
+        required_fields = ['name', 'developer', 'aircraft_manufacturer', 'category', 'price_type']
+        
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because header is row 1
+            try:
+                # Validate required fields
+                missing_fields = [field for field in required_fields if not row.get(field, '').strip()]
+                if missing_fields:
+                    errors.append(f"Row {row_num}: Missing required fields: {', '.join(missing_fields)}")
+                    continue
+                
+                # Check for duplicate (same name + developer)
+                existing = aircraft_collection.find_one({
+                    "name": row['name'].strip(),
+                    "developer": row['developer'].strip()
+                })
+                if existing:
+                    skipped_count += 1
+                    continue
+                
+                # Process compatibility field (comma-separated)
+                compatibility = []
+                if row.get('compatibility', '').strip():
+                    compatibility = [c.strip() for c in row['compatibility'].split(',') if c.strip()]
+                
+                # Process features field (comma-separated)
+                features = []
+                if row.get('features', '').strip():
+                    features = [f.strip() for f in row['features'].split(',') if f.strip()]
+                
+                # Process additional_images (comma-separated URLs)
+                additional_images = []
+                if row.get('additional_images', '').strip():
+                    additional_images = [img.strip() for img in row['additional_images'].split(',') if img.strip()]
+                
+                # Parse release_date if provided
+                release_date = None
+                if row.get('release_date', '').strip():
+                    try:
+                        release_date = datetime.strptime(row['release_date'].strip(), '%Y-%m-%d').strftime('%Y-%m-%d')
+                    except ValueError:
+                        errors.append(f"Row {row_num}: Invalid date format in release_date. Use YYYY-MM-DD")
+                        continue
+                
+                # Validate price_type
+                if row['price_type'].strip() not in ['Paid', 'Freeware']:
+                    errors.append(f"Row {row_num}: price_type must be 'Paid' or 'Freeware'")
+                    continue
+                
+                # Create aircraft object
+                aircraft_data = {
+                    "id": str(uuid.uuid4()),
+                    "name": row['name'].strip(),
+                    "developer": row['developer'].strip(),
+                    "aircraft_manufacturer": row['aircraft_manufacturer'].strip(),
+                    "aircraft_model": row.get('aircraft_model', '').strip(),
+                    "variant": row.get('variant', '').strip(),
+                    "category": row['category'].strip(),
+                    "price_type": row['price_type'].strip(),
+                    "price": row.get('price', '').strip(),
+                    "description": row.get('description', '').strip(),
+                    "image_url": row.get('image_url', '').strip(),
+                    "cockpit_image_url": row.get('cockpit_image_url', '').strip(),
+                    "additional_images": additional_images,
+                    "release_date": release_date,
+                    "compatibility": compatibility,
+                    "download_url": row.get('download_url', '').strip(),
+                    "developer_website": row.get('developer_website', '').strip(),
+                    "features": features,
+                    "average_rating": 0.0,
+                    "total_reviews": 0,
+                    "view_count": 0,
+                    "last_viewed": None,
+                    "is_archived": False,
+                    "created_at": datetime.now(),
+                    "updated_at": datetime.now()
+                }
+                
+                # Insert aircraft
+                aircraft_collection.insert_one(aircraft_data)
+                imported_count += 1
+                
+            except Exception as e:
+                errors.append(f"Row {row_num}: {str(e)}")
+                continue
+        
+        return {
+            "imported_count": imported_count,
+            "skipped_count": skipped_count,
+            "errors": errors[:20]  # Limit errors to prevent huge responses
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing CSV: {str(e)}")
+
 # Utility Routes
 
 @app.get("/api/developers")
