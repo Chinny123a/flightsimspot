@@ -3539,6 +3539,20 @@ function App() {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium mb-1">Additional Images</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(aircraftFormData.additional_images) ? aircraftFormData.additional_images.join(', ') : ''}
+                      onChange={(e) => setAircraftFormData({
+                        ...aircraftFormData, 
+                        additional_images: e.target.value.split(',').map(url => url.trim()).filter(url => url)
+                      })}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">Separate multiple image URLs with commas. These will appear in the image slideshow.</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium mb-1">Download URL</label>
                     <input
                       type="url"
