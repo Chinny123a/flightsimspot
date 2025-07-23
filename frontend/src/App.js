@@ -78,6 +78,7 @@ function App() {
     subject: '',
     message: ''
   });
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
