@@ -79,6 +79,7 @@ function App() {
     message: ''
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [csvUploadResult, setCsvUploadResult] = useState(null);
   
   const [reviewFormData, setReviewFormData] = useState({
     title: '',
