@@ -389,6 +389,86 @@ function App() {
     return [];
   };
 
+  // Helper function to get all images for an aircraft
+  const getAllImages = (aircraft) => {
+    const images = [];
+    if (aircraft.image_url) images.push(aircraft.image_url);
+    if (aircraft.cockpit_image_url) images.push(aircraft.cockpit_image_url);
+    if (aircraft.additional_images && Array.isArray(aircraft.additional_images)) {
+      images.push(...aircraft.additional_images);
+    }
+    return images.filter(img => img); // Remove empty values
+  };
+
+  // Image slideshow component
+  const renderImageSlideshow = (aircraft) => {
+    const images = getAllImages(aircraft);
+    if (images.length === 0) return null;
+
+    return (
+      <div className="relative">
+        {/* Main Image Display */}
+        <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden mb-4">
+          <img
+            src={images[currentImageIndex]}
+            alt={`${aircraft.name} - Image ${currentImageIndex + 1}`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/800x450/f3f4f6/9ca3af?text=Image+Not+Available';
+            }}
+          />
+          
+          {/* Image Navigation Arrows */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={() => setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-opacity"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => setCurrentImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition-opacity"
+              >
+                →
+              </button>
+              
+              {/* Image Counter */}
+              <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Thumbnail Navigation */}
+        {images.length > 1 && (
+          <div className="flex space-x-2 overflow-x-auto pb-2">
+            {images.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`flex-shrink-0 w-20 h-12 rounded overflow-hidden border-2 transition-colors ${
+                  currentImageIndex === index ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/80x48/f3f4f6/9ca3af?text=N/A';
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Sorting functionality
   const requestSort = (key) => {
     let direction = 'ascending';
