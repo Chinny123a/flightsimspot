@@ -615,6 +615,75 @@ function App() {
     }
   };
 
+  // CSV Bulk Upload Functions
+  const downloadCSVTemplate = () => {
+    const csvContent = `name,developer,aircraft_manufacturer,aircraft_model,variant,category,price_type,price,description,image_url,cockpit_image_url,release_date,compatibility,download_url,developer_website,features
+"Boeing 737-800","PMDG","Boeing","737","800","Commercial","Paid","$69.99","High-fidelity Boeing 737-800 simulation","https://example.com/image.jpg","https://example.com/cockpit.jpg","2023-01-15","MSFS 2020,MSFS 2024","https://example.com/download","https://pmdg.com","Study Level,Realistic Systems,Custom Sounds"
+"Cessna 172","Carenado","Cessna","172","Skyhawk","General Aviation","Paid","$24.99","Classic general aviation aircraft","https://example.com/c172.jpg","https://example.com/c172_cockpit.jpg","2022-08-10","MSFS 2020,MSFS 2024","https://example.com/c172","https://carenado.com","High Quality Textures,Realistic Flight Model"`;
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'aircraft_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleCSVUpload = async (file) => {
+    if (!file) return;
+    if (!user?.is_admin) {
+      alert('Admin access required for bulk upload');
+      return;
+    }
+
+    setCsvUploadResult(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/aircraft/bulk-upload`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setCsvUploadResult({
+          success: true,
+          message: `Successfully imported ${result.imported_count} aircraft. ${result.skipped_count} duplicates skipped.`,
+          errors: result.errors || []
+        });
+        
+        // Refresh aircraft data
+        if (currentView === 'browse' || currentView === 'viewall') {
+          fetchAllAircraft();
+        }
+        if (currentView === 'admin') {
+          fetchAdminStats();
+        }
+      } else {
+        setCsvUploadResult({
+          success: false,
+          message: result.detail || 'Upload failed',
+          errors: result.errors || []
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      setCsvUploadResult({
+        success: false,
+        message: 'Network error during upload',
+        errors: [error.message]
+      });
+    }
+  };
+
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       console.log('Google login attempt with credential:', credentialResponse.credential ? 'present' : 'missing');
