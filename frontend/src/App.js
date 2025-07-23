@@ -617,9 +617,10 @@ function App() {
 
   // CSV Bulk Upload Functions
   const downloadCSVTemplate = () => {
-    const csvContent = `name,developer,aircraft_manufacturer,aircraft_model,variant,category,price_type,price,description,image_url,cockpit_image_url,release_date,compatibility,download_url,developer_website,features
-"Boeing 737-800","PMDG","Boeing","737","800","Commercial","Paid","$69.99","High-fidelity Boeing 737-800 simulation","https://example.com/image.jpg","https://example.com/cockpit.jpg","2023-01-15","MSFS 2020,MSFS 2024","https://example.com/download","https://pmdg.com","Study Level,Realistic Systems,Custom Sounds"
-"Cessna 172","Carenado","Cessna","172","Skyhawk","General Aviation","Paid","$24.99","Classic general aviation aircraft","https://example.com/c172.jpg","https://example.com/c172_cockpit.jpg","2022-08-10","MSFS 2020,MSFS 2024","https://example.com/c172","https://carenado.com","High Quality Textures,Realistic Flight Model"`;
+    const csvContent = `name,developer,aircraft_manufacturer,aircraft_model,variant,category,price_type,price,description,image_url,cockpit_image_url,additional_images,compatibility,download_url,developer_website,features
+"Boeing 737-800","PMDG","Boeing","737","800","Commercial","Paid","$69.99","High-fidelity Boeing 737-800 simulation","https://example.com/737_main.jpg","https://example.com/737_cockpit.jpg","https://example.com/737_exterior.jpg,https://example.com/737_cabin.jpg,https://example.com/737_approach.jpg","MSFS 2020,MSFS 2024","https://example.com/download","https://pmdg.com","Study Level,Realistic Systems,Custom Sounds"
+"Cessna 172","Carenado","Cessna","172","Skyhawk","General Aviation","Paid","$24.99","Classic general aviation aircraft","https://example.com/c172_main.jpg","https://example.com/c172_cockpit.jpg","https://example.com/c172_ramp.jpg,https://example.com/c172_flight.jpg","MSFS 2020,MSFS 2024","https://example.com/c172","https://carenado.com","High Quality Textures,Realistic Flight Model"
+"A32NX","FlyByWire","Airbus","A320","NEO","Commercial","Freeware","Free","Open-source Airbus A320neo enhancement","https://example.com/a32nx_main.jpg","https://example.com/a32nx_cockpit.jpg","https://example.com/a32nx_wing.jpg,https://example.com/a32nx_takeoff.jpg","MSFS 2020,MSFS 2024","https://github.com/flybywiresim/a32nx","https://flybywiresim.com","EFB,Custom Systems,Regular Updates"`;
     
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
