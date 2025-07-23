@@ -1654,34 +1654,11 @@ function App() {
           </div>
         </div>
 
-        {/* Images Gallery */}
-        {allImages.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-2xl font-semibold mb-4">Screenshots</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allImages.map((imageUrl, index) => (
-                <div key={index} className="aspect-video bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg overflow-hidden">
-                  <img
-                    src={imageUrl}
-                    alt={`${selectedAircraft.name} - Image ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentNode.innerHTML = `
-                        <div class="flex items-center justify-center h-full text-white text-center">
-                          <div>
-                            <div class="text-4xl mb-2">✈️</div>
-                            <div class="text-sm">Image ${index + 1}</div>
-                          </div>
-                        </div>
-                      `;
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Image Slideshow */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-semibold mb-4">Screenshots</h3>
+          {renderImageSlideshow(selectedAircraft)}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
