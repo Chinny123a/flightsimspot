@@ -3257,6 +3257,63 @@ function App() {
           </div>
         </div>
 
+        {/* CSV Bulk Upload Section */}
+        <div className="mt-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-xl font-semibold mb-4">📊 Bulk Aircraft Import</h3>
+            <p className="text-gray-600 mb-4">Upload multiple aircraft at once using a CSV file</p>
+            
+            <div className="space-y-4">
+              {/* Download Template */}
+              <div>
+                <button
+                  onClick={() => downloadCSVTemplate()}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors mr-4"
+                >
+                  📥 Download CSV Template
+                </button>
+                <span className="text-sm text-gray-500">Get the required format for bulk import</span>
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => handleCSVUpload(e.target.files[0])}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">Upload a CSV file with aircraft data. Maximum 100 aircraft per upload.</p>
+              </div>
+
+              {/* Upload Results */}
+              {csvUploadResult && (
+                <div className={`p-4 rounded-lg ${csvUploadResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                  <h4 className={`font-semibold ${csvUploadResult.success ? 'text-green-800' : 'text-red-800'}`}>
+                    {csvUploadResult.success ? '✅ Upload Successful' : '❌ Upload Failed'}
+                  </h4>
+                  <p className={`text-sm mt-1 ${csvUploadResult.success ? 'text-green-700' : 'text-red-700'}`}>
+                    {csvUploadResult.message}
+                  </p>
+                  {csvUploadResult.errors && csvUploadResult.errors.length > 0 && (
+                    <div className="mt-2">
+                      <h5 className="font-medium text-red-800">Errors:</h5>
+                      <ul className="text-sm text-red-700 list-disc ml-4">
+                        {csvUploadResult.errors.slice(0, 5).map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                        {csvUploadResult.errors.length > 5 && (
+                          <li>... and {csvUploadResult.errors.length - 5} more errors</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Feedback Management */}
         <div className="mt-8">
           <div className="bg-white rounded-xl shadow-lg p-6">
