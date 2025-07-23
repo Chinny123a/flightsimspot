@@ -1611,13 +1611,6 @@ function App() {
   const renderAircraftDetailView = () => {
     if (!selectedAircraft) return null;
 
-    // Collect all images including additional ones
-    const allImages = [
-      selectedAircraft.image_url,
-      selectedAircraft.cockpit_image_url,
-      ...(selectedAircraft.additional_images || [])
-    ].filter(img => img && img.trim() !== '');
-
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
