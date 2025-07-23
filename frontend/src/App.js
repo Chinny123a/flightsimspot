@@ -727,6 +727,7 @@ function App() {
 
   const openAircraftDetails = async (aircraftData) => {
     setSelectedAircraft(aircraftData);
+    setCurrentImageIndex(0); // Reset slideshow to first image
     setCurrentView('aircraft');
     
     // Track page view
