@@ -846,6 +846,7 @@ function App() {
       image_url: selectedAircraft.image_url || '',
       cockpit_image_url: selectedAircraft.cockpit_image_url || '',
       additional_images: selectedAircraft.additional_images || [],
+      additional_images_text: Array.isArray(selectedAircraft.additional_images) ? selectedAircraft.additional_images.join(', ') : '',
       release_date: selectedAircraft.release_date || '',
       compatibility: selectedAircraft.compatibility || [],
       download_url: selectedAircraft.download_url || '',
