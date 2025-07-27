@@ -1080,7 +1080,7 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
                     "image_url": row.get('image_url', '').strip(),
                     "cockpit_image_url": row.get('cockpit_image_url', '').strip(),
                     "additional_images": additional_images,
-                    "release_date": release_date,
+                    "release_date": None,  # Not using release_date from CSV
                     "compatibility": compatibility,
                     "download_url": row.get('download_url', '').strip(),
                     "developer_website": row.get('developer_website', '').strip(),
