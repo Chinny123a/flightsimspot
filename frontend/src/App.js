@@ -2093,13 +2093,14 @@ function App() {
                 <label className="block text-sm font-medium mb-1">Additional Images</label>
                 <input
                   type="text"
-                  value={Array.isArray(aircraftFormData.additional_images) ? aircraftFormData.additional_images.join(', ') : aircraftFormData.additional_images_input || ''}
+                  value={Array.isArray(aircraftFormData.additional_images) ? aircraftFormData.additional_images.join(', ') : ''}
                   onChange={(e) => {
+                    // Store the raw input value and convert to array
                     const inputValue = e.target.value;
+                    const imageUrls = inputValue ? inputValue.split(',').map(url => url.trim()).filter(url => url) : [];
                     setAircraftFormData({
                       ...aircraftFormData, 
-                      additional_images_input: inputValue,
-                      additional_images: inputValue ? inputValue.split(',').map(url => url.trim()).filter(url => url) : []
+                      additional_images: imageUrls
                     });
                   }}
                   className="w-full border rounded-lg px-3 py-2"
