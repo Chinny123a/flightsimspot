@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 
 class AircraftAPITester:
-    def __init__(self, base_url="https://7268f3ac-9f43-409d-901e-f3b4c6052145.preview.emergentagent.com"):
+    def __init__(self, base_url="https://b2d90a90-429a-4535-a775-da24f353ce5d.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

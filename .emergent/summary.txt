@@ -1,9 +1,10 @@
 <analysis>
-The AI engineer successfully transformed an MVP aircraft review site into a professional, live platform (FlightSimSpot.com). Initial work focused on UI/UX improvements: converting aircraft details from modals to full-page views, implementing multiple image support, and enabling archive/restore functionality. Authentication issues (Google OAuth origin mismatch, session cookie problems) were resolved. UI enhancements included a persistent, Flightsim.to-style header with search, a Top 10 section, and homepage improvements like Recently Added Aircraft. A crucial page view tracking system was integrated backend-to-frontend. A major database issue—data loss on deployment—was fixed. The current work involves implementing multiple admin features: review deletion, features/tags editing, a comprehensive admin dashboard (currently showing zeroed data needing a fix), a dynamic Categories dropdown, and adding compatibility editing to aircraft forms, which is the immediate focus.
+The AI engineer successfully transformed the FlightSimSpot MVP into a professional, feature-rich platform. Initial efforts focused on UI/UX, authentication, and core aircraft management, including a persistent welcome message and admin dashboard fixes. A major architectural pivot introduced a PCPartPicker-style browse view with advanced filtering and sorting, requiring a complete overhaul of frontend navigation and display. Further enhancements included detailed/compact table views, dynamic category input, a comprehensive user feedback system, and a professional multi-image slideshow. The final significant feature implemented was a robust CSV bulk upload system for aircraft, complete with template generation, extensive validation, and crucial multi-encoding support. The last action addressed and fixed a persistent CSV upload encoding error, enhancing the system's reliability for large data imports.
 </analysis>
 
 <product_requirements>
-The user requires a comprehensive website to collate paid and freeware aircraft reviews for MS2024/MS2020. Aircraft must be grouped by Category (Commercial, GA, Military, Helicopters), Real Manufacturer, and Simulation Developer, with variants. Users must log in (Google prioritized) to write 5-star reviews with detailed categories. Admin users () need full capabilities: adding new aircraft via a full-page form, editing existing details, archiving/restoring aircraft, and managing multiple images. The platform should offer filtering, sortable lists, user profiles, and professional imagery. Implemented features include the 3-level hierarchy, functional Google OAuth, admin adding/editing/archiving, multiple image support (backend), full-page aircraft details (frontend), a Flightsim.to-style navigation header with search and Top 10 view, Recently Added aircraft on homepage, basic page view tracking (Most Viewed, Trending), and a View All page. Critical fixes include OAuth origin, frontend blank page, session issues, and preventing database resets on deployment. The site has been rebranded to FlightSimSpot to future-proof for scenery and hardware reviews.
+The user requires a comprehensive website to collate paid and freeware aircraft reviews for MS2024/MS2020. Aircraft must be grouped by Category, Real Manufacturer, and Simulation Developer, with variants. Users must log in (Google prioritized) to write 5-star reviews with detailed categories. Admin users () need full capabilities: adding new aircraft via a full-page form, editing existing details, archiving/restoring aircraft, and managing multiple images. The platform should offer filtering, sortable lists, user profiles, and professional imagery.
+**Implemented features include:** a 3-level hierarchy (later refactored), functional Google OAuth, admin adding/editing/archiving, multiple image support, full-page aircraft details/edit forms, Flightsim.to-style navigation (later simplified), a PCPartPicker-style Aircraft browse page with advanced filtering and sorting (Detailed/Compact views), dynamic categories, admin review deletion, persistent welcome message with HTML support, user feedback system, and a robust CSV bulk aircraft upload utility with template, validation, and multi-encoding support. The site has been rebranded to FlightSimSpot.
 </product_requirements>
 
 <key_technical_concepts>
@@ -11,7 +12,8 @@ The user requires a comprehensive website to collate paid and freeware aircraft 
 -   **Authentication**: Google OAuth 2.0 (Authlib, ), session management ().
 -   **Styling**: Tailwind CSS.
 -   **Deployment**: Railway (backend), Vercel (frontend) for CI/CD.
--   **Data Management**: , , MongoDB Atlas.
+-   **Data Management**: , , MongoDB Atlas, CSV parsing (, ).
+-   **Dynamic UI**:  for rich text, conditional rendering for views.
 </key_technical_concepts>
 
 <code_architecture>
@@ -20,51 +22,62 @@ The application follows a standard full-stack architecture with separate fronten
 
 
 -   **/app/backend/server.py**:
-    -   **Summary**: Main FastAPI application for API routes, database interactions, and business logic.
-    -   **Changes**: Initial CRUD for aircraft, Google OAuth, 3-level hierarchy. Admin functions (add/edit/archive aircraft, delete reviews). Added ,  to aircraft model.  modified to prevent data loss on redeploy. Fixed CORS with ,  for session cookies. Implemented page view tracking () and analytics endpoints (, , ). Added  dependency. Currently being updated to fix  data showing 0s and to handle compatibility.
+    -   **Summary**: The core FastAPI application, handling all API endpoints, database interactions, and business logic for FlightSimSpot.
+    -   **Changes**:
+        -   Expanded aircraft model to include  and .
+        -   Implemented page view tracking and analytics endpoints.
+        -   Fixed admin dashboard stats by correctly ing .
+        -   Added  model and CRUD endpoints for dynamic homepage content.
+        -   Introduced  model and API endpoints for user feedback submission and admin management.
+        -   **Implemented  endpoint**: Processes CSV files for bulk aircraft creation. Includes robust validation (required fields, price type, URL format), duplicate detection, and **multi-encoding support** (, , , , ) to handle various CSV file encodings. Removed  validation from CSV import.
 
 -   **/app/frontend/src/App.js**:
-    -   **Summary**: The main React component for UI, routing, state, and API calls.
-    -   **Changes**: Converted aircraft detail from modal to full-page view, supporting multiple images. Implemented full-page edit form for admins. Refactored navigation to Flightsim.to-style header with search, Top 10, View All, Most Viewed, Trending buttons. Replaced flat categories with a Categories dropdown. Added Recently Added Aircraft and an editable welcome message to the homepage. Incorporated Google Analytics tracking. Added state for new features (e.g., , , ). Implemented  (debugged and moved inside component). Added logic for features/tags input in add/edit forms. Rebranded text from Aircraft Review Hub to FlightSimSpot. Currently being updated to add compatibility editing (MSFS 2020/2024) to add/edit aircraft forms.
+    -   **Summary**: The main React component orchestrating the user interface, routing, application state, and interactions with the backend API.
+    -   **Changes**:
+        -   Converted aircraft detail to full-page view, supporting multiple images.
+        -   Implemented a full-page edit form for admins.
+        -   Refactored navigation header to a simplified structure ().
+        -   **Added compatibility field to Add New Aircraft form**, initially as checkboxes, later refactored to a comma-separated text input (like Features) for flexibility and future-proofing. Fixed associated typing and data storage bugs.
+        -   Integrated dynamic Welcome Message display/editing using .
+        -   **Major UI revamp for aircraft browsing (PCPartPicker style)**:
+            -   Implemented a Browse All (later Aircraft) page with a filter sidebar (search, price, type, developers, manufacturers, categories, ratings, compatibility).
+            -   Developed sortable table headers and implemented sorting logic for various columns.
+            -   Introduced Detailed and Compact views for the aircraft table, allowing users to toggle column visibility and order (e.g., separating Aircraft Model and Manufacturer).
+        -   **Homepage updated**: Removed Browse by Aircraft Category and added Trending Aircraft section.
+        -   **Integrated user feedback system**: Added a Feedback button, modal form, and a section in the Admin Dashboard to display and manage feedback.
+        -   **Implemented a professional multi-image slideshow component** for aircraft detail pages, combining , , and .
+        -   **Added UI for CSV bulk upload** in the Admin Dashboard, including template download, file input, and status reporting.
 
 -   **/app/backend/.env & /app/frontend/.env**:
-    -   **Summary**: Environment variable files for backend and frontend.
-    -   **Changes**: Backend  uses , , and . Frontend  uses .
+    -   **Summary**: Environment configuration files for secure and flexible deployment of backend and frontend services.
+    -   **Changes**: No functional changes to these files themselves, but their variables (, , , ) are critical for application operation and are strictly managed according to defined rules.
 
--   **/app/backend/scripts/backup_database.py**:
-    -   **Summary**: A Python script to export MongoDB collections (e.g., ) to JSON for manual backups.
-    -   **Changes**: Created.
-
--   **/app/scripts/quick_backup.sh**:
-    -   **Summary**: A shell script to easily run the Python backup script.
-    -   **Changes**: Created.
+-   **/app/backend/scripts/backup_database.py & /app/scripts/quick_backup.sh**:
+    -   **Summary**: Python and shell scripts to facilitate manual MongoDB backups.
+    -   **Changes**: Created to provide a simple backup mechanism.
 
 -   **/app/MANUAL_BACKUP.md & /app/STAGING_SETUP.md**:
-    -   **Summary**: Documentation for manual backup procedures and staging environment setup.
-    -   **Changes**: Created.
+    -   **Summary**: Documentation providing instructions for manual database backup and setting up a staging environment.
+    -   **Changes**: Created as part of initial setup/documentation.
 </code_architecture>
 
 <pending_tasks>
--   Complete implementation of Compatibility field editing (MSFS 2020/2024) in the Add/Edit Aircraft forms.
--   Fix the Admin Dashboard to display correct user, aircraft, and review statistics (currently showing 0s).
--   Make the Edit Welcome Message feature fully functional, including saving the updated text to the database.
 -   Implement drag/drop image upload functionality for aircraft (current backend supports multiple images, but frontend UI for upload is pending).
 -   Implement external data sourcing/scraping (e.g., FlightSim.to downloads, SimMarket sales) for alternative ranking metrics.
 </pending_tasks>
 
 <current_work>
-The application, FlightSimSpot, is a live, production-ready aircraft review platform. It has a React frontend on Vercel and a FastAPI backend on Railway, using MongoDB Atlas. A critical fix for data loss on deployment has been implemented, ensuring existing data is preserved. Automated local backups are set up via . Google Analytics is integrated for visitor tracking.
+The FlightSimSpot application is currently a highly functional, production-ready platform. The React frontend and FastAPI backend are deployed on Vercel and Railway, respectively, with MongoDB Atlas for data persistence. The application boasts a significantly improved user experience and robust administrative features.
 
-The immediate work is focused on implementing significant administrative and UI enhancements:
-1.  **Admin Review Deletion**: Backend support for deleting reviews is ready.
-2.  **Features/Tags System**: Integrated into add/edit aircraft forms, allowing comma-separated tags and displaying them as badges.
-3.  **Admin Dashboard**: A new admin panel is in place, but it's currently displaying 0 for all statistics (users, aircraft, reviews). The AI engineer is debugging this, suspecting backend collection name mismatches in  and has made initial fixes.
-4.  **Categories Dropdown Navigation**: The header now features a scalable Categories dropdown menu, replacing the previous horizontal links.
-5.  **Text Correction**: X simulations available has been globally updated to X aircraft available.
-6.  **Welcome Message Editor**: An admin-only Edit Welcome Message button and modal are implemented on the homepage, allowing admins to modify the site's introductory text (persistence to database is a pending task).
-7.  **Compatibility Editing**: The AI engineer is currently in the process of adding MSFS 2020 and MSFS 2024 compatibility fields to the Add New Aircraft form, having already addressed it for the Edit Aircraft form. The trajectory ends with the AI engineer searching for the correct location to implement this.
+The most immediate and recently completed work involved addressing a critical **CSV bulk upload encoding error**. The user reported issues with uploading CSV files, which the AI engineer diagnosed as character encoding problems.
+
+**The solution implemented was:**
+-   **Backend () Modification**: The  function was enhanced to intelligently attempt decoding CSV files using a range of common encodings, including , , , , and . This makes the CSV import process far more resilient to variations in file creation software.
+-   **Enhanced Error Handling**: Improved error messages and validation logic were added to provide clearer feedback for issues like missing required columns or malformed data, alongside the encoding fix.
+
+This fix ensures that the **CSV bulk aircraft upload system** (a major recent feature allowing quick addition of multiple aircraft with a downloadable template, comprehensive validation, and multi-image support) is now reliable and user-friendly, handling common file formatting discrepancies gracefully. The application's state reflects a fully integrated CSV upload pipeline, pending user confirmation of the fix.
 </current_work>
 
 <optional_next_step>
-Complete the implementation of the Compatibility field in the Add New Aircraft form, and then verify the Admin Dashboard statistics are correctly displayed after the backend fix.
+Verify the CSV bulk upload system functions correctly without encoding errors.
 </optional_next_step>
