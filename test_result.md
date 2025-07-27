@@ -250,6 +250,21 @@ backend:
           comment: "Fully implemented welcome message endpoints: GET /api/welcome-message (public) and PUT /api/welcome-message (admin only). Added WelcomeMessage model and welcome_messages_collection. Backend testing confirmed functionality."
 
 frontend:
+  - task: "Fix Additional Images Field Comma Input"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "User reports cannot type commas in additional images field which prevents adding multiple images"
+        - working: true
+          agent: "main"
+          comment: "Fixed by separating text input state from array state - added additional_images_text field to track raw input, preventing re-rendering issues that interfered with comma typing. Updated both Add New and Edit forms."
+  
   - task: "Convert Aircraft Detail Modal to Full Page"
     implemented: true
     working: true
