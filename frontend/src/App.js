@@ -1034,6 +1034,7 @@ function App() {
           image_url: '',
           cockpit_image_url: '',
           additional_images: [],
+          additional_images_text: '',
           release_date: '',
           compatibility: '',
           download_url: '',
