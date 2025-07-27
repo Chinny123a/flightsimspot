@@ -3739,11 +3739,15 @@ function App() {
                     <label className="block text-sm font-medium mb-1">Additional Images</label>
                     <input
                       type="text"
-                      value={Array.isArray(aircraftFormData.additional_images) ? aircraftFormData.additional_images.join(', ') : ''}
-                      onChange={(e) => setAircraftFormData({
-                        ...aircraftFormData, 
-                        additional_images: e.target.value.split(',').map(url => url.trim()).filter(url => url)
-                      })}
+                      value={aircraftFormData.additional_images_text || ''}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        setAircraftFormData({
+                          ...aircraftFormData, 
+                          additional_images_text: inputValue,
+                          additional_images: inputValue ? inputValue.split(',').map(url => url.trim()).filter(url => url) : []
+                        });
+                      }}
                       className="w-full border rounded-lg px-3 py-2"
                       placeholder="https://image1.jpg, https://image2.jpg, https://image3.jpg"
                     />
