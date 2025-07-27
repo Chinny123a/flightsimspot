@@ -1290,9 +1290,15 @@ function App() {
           </div>
           <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                FlightSimSpot
-              </h1>
+              <div className="flex items-center justify-center mb-6">
+                {/* Airplane Icon for Hero */}
+                <svg width="60" height="60" viewBox="0 0 60 60" className="text-blue-400 mr-4">
+                  <path fill="currentColor" d="M30 5L15 22h9v15l-13 3v5l13-3v11h4v-11l13 3v-5l-13-3V22h9L30 5z"/>
+                </svg>
+                <h1 className="text-4xl md:text-6xl font-bold text-white">
+                  FlightSimSpot
+                </h1>
+              </div>
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
                 Your ultimate destination for flight simulation reviews and ratings
               </p>
