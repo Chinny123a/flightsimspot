@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete implementation of compatibility field editing (MSFS 2020/2024) in Add New Aircraft form, fix Admin Dashboard statistics showing 0s, and complete Welcome Message Editor with database persistence."
+user_problem_statement: "Fix additional images field comma input issue - user cannot type commas in the field. Also integrate new professional logo to replace current logo on banner and home page."
 
 backend:
   - task: "Multiple Images Support"
