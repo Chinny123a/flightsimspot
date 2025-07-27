@@ -2446,6 +2446,7 @@ function App() {
                             image_url: aircraft.image_url || '',
                             cockpit_image_url: aircraft.cockpit_image_url || '',
                             additional_images: aircraft.additional_images || [],
+                            additional_images_text: Array.isArray(aircraft.additional_images) ? aircraft.additional_images.join(', ') : '',
                             release_date: aircraft.release_date || '',
                             compatibility: aircraft.compatibility || ['MS2024'],
                             download_url: aircraft.download_url || '',
