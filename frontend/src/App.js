@@ -1291,16 +1291,13 @@ function App() {
           <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="flex items-center justify-center mb-6">
-                {/* Professional Airplane Icon for Hero matching the logo */}
-                <div className="mr-6">
-                  <svg width="72" height="56" viewBox="0 0 72 56" className="text-blue-400">
-                    <path fill="currentColor" d="M36 0L4 20L0 24L16 28L8 36L0 40L12 44L20 36L48 44L72 24L60 16L36 24L36 0Z"/>
-                    <path fill="currentColor" opacity="0.6" d="M36 4L12 16L36 20L56 12L36 4Z"/>
-                  </svg>
-                </div>
-                <h1 className="text-4xl md:text-6xl font-bold text-white tracking-wide" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: '700'}}>
-                  FlightSimSpot
-                </h1>
+                {/* Use the professional logo for hero section */}
+                <img 
+                  src="/flightsimspot-logo.svg" 
+                  alt="FlightSimSpot" 
+                  className="h-16 w-auto filter brightness-0 invert"
+                  style={{maxWidth: '400px'}}
+                />
               </div>
               <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
                 Your ultimate destination for flight simulation reviews and ratings
