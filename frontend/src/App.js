@@ -1294,11 +1294,14 @@ function App() {
           <div className="relative max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="flex items-center justify-center mb-6">
-                {/* Airplane Icon for Hero */}
-                <svg width="60" height="60" viewBox="0 0 60 60" className="text-blue-400 mr-4">
-                  <path fill="currentColor" d="M30 5L15 22h9v15l-13 3v5l13-3v11h4v-11l13 3v-5l-13-3V22h9L30 5z"/>
-                </svg>
-                <h1 className="text-4xl md:text-6xl font-bold text-white">
+                {/* Professional Airplane Icon for Hero matching the logo */}
+                <div className="mr-6">
+                  <svg width="80" height="64" viewBox="0 0 80 64" className="text-blue-400">
+                    <path fill="currentColor" d="M16 24L40 4L48 12L36 24H60L68 32L60 40H36L48 52L40 60L16 40V48L8 56V40L0 32L8 24V8L16 16V24Z"/>
+                    <circle cx="40" cy="32" r="6" fill="currentColor" opacity="0.7"/>
+                  </svg>
+                </div>
+                <h1 className="text-4xl md:text-6xl font-bold text-white" style={{fontFamily: 'Arial, sans-serif'}}>
                   FlightSimSpot
                 </h1>
               </div>
