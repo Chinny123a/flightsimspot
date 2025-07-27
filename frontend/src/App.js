@@ -1162,12 +1162,13 @@ function App() {
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
                 <div className="flex items-center space-x-3">
-                  {/* Sleek Professional Airplane Icon matching the logo design */}
-                  <svg width="36" height="28" viewBox="0 0 36 28" className="text-blue-600">
-                    <path fill="currentColor" d="M18 0L2 10L0 12L8 14L4 18L0 20L6 22L10 18L24 22L36 12L30 8L18 12L18 0Z"/>
-                    <path fill="currentColor" opacity="0.6" d="M18 2L6 8L18 10L28 6L18 2Z"/>
+                  {/* Airplane silhouette matching the provided logo design */}
+                  <svg width="32" height="32" viewBox="0 0 100 100" className="text-blue-600">
+                    <g transform="translate(10,10) scale(0.8)">
+                      <path fill="currentColor" d="M50 10 L20 35 L25 40 L45 30 L45 50 L15 65 L15 75 L35 70 L35 85 L40 90 L50 85 L60 90 L65 85 L65 70 L85 75 L85 65 L55 50 L55 30 L75 40 L80 35 L50 10 Z"/>
+                    </g>
                   </svg>
-                  <span className="text-2xl font-bold text-blue-800 tracking-wide" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: '700'}}>FlightSimSpot</span>
+                  <span className="text-2xl font-bold text-blue-800 tracking-wide" style={{fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: '700'}}>FlightSimSpot</span>
                 </div>
               </button>
             </div>
