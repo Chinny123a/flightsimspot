@@ -636,16 +636,16 @@ function App() {
   const handleCSVUpload = async (file) => {
     if (!file) return;
     if (!user?.is_admin) {
-      alert('Admin access required for bulk upload');
+      alert('Admin access required');
       return;
     }
 
     setCsvUploadResult(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
+      const formData = new FormData();
+      formData.append('file', file);
+
       const response = await fetch(`${BACKEND_URL}/api/aircraft/bulk-upload`, {
         method: 'POST',
         credentials: 'include',
@@ -653,7 +653,7 @@ function App() {
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         setCsvUploadResult({
           success: true,
@@ -662,25 +662,20 @@ function App() {
         });
         
         // Refresh aircraft data
-        if (currentView === 'browse' || currentView === 'viewall') {
-          fetchAllAircraft();
-        }
-        if (currentView === 'admin') {
-          fetchAdminStats();
-        }
+        fetchAllAircraft();
+        fetchAdminStats();
       } else {
         setCsvUploadResult({
           success: false,
           message: result.detail || 'Upload failed',
-          errors: result.errors || []
+          errors: []
         });
       }
     } catch (error) {
-      console.error('Error uploading CSV:', error);
       setCsvUploadResult({
         success: false,
-        message: 'Network error during upload',
-        errors: [error.message]
+        message: 'Upload failed: ' + error.message,
+        errors: []
       });
     }
   };
