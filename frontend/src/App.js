@@ -1161,12 +1161,15 @@ function App() {
                 }}
                 className="flex items-center hover:opacity-80 transition-opacity"
               >
-                <div className="flex items-center space-x-2">
-                  {/* Airplane Icon */}
-                  <svg width="32" height="32" viewBox="0 0 32 32" className="text-blue-600">
-                    <path fill="currentColor" d="M16 3L8 12h5v8l-7 2v3l7-2v6h2v-6l7 2v-3l-7-2v-8h5L16 3z"/>
-                  </svg>
-                  <span className="text-2xl font-bold text-blue-800">FlightSimSpot</span>
+                <div className="flex items-center space-x-3">
+                  {/* Professional Airplane Icon matching the provided logo */}
+                  <div className="relative">
+                    <svg width="40" height="32" viewBox="0 0 40 32" className="text-blue-600">
+                      <path fill="currentColor" d="M8 12L20 2L24 6L18 12H30L34 16L30 20H18L24 26L20 30L8 20V24L4 28V20L0 16L4 12V4L8 8V12Z"/>
+                      <circle cx="20" cy="16" r="3" fill="currentColor" opacity="0.7"/>
+                    </svg>
+                  </div>
+                  <span className="text-2xl font-bold text-blue-800" style={{fontFamily: 'Arial, sans-serif'}}>FlightSimSpot</span>
                 </div>
               </button>
             </div>
