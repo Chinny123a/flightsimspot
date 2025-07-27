@@ -1009,7 +1009,24 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
     try:
         # Read CSV content
         contents = await file.read()
-        csv_text = contents.decode('utf-8')
+        
+        # Try different encodings to handle various CSV exports
+        csv_text = None
+        encodings_to_try = ['utf-8', 'utf-8-sig', 'latin-1', 'cp1252', 'iso-8859-1']
+        
+        for encoding in encodings_to_try:
+            try:
+                csv_text = contents.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        
+        if csv_text is None:
+            raise HTTPException(status_code=400, detail="Could not decode CSV file. Please save as UTF-8 encoding.")
+        
+        # Clean up common CSV issues
+        csv_text = csv_text.replace('\r\n', '\n').replace('\r', '\n')
+        
         csv_reader = csv.DictReader(io.StringIO(csv_text))
         
         imported_count = 0
@@ -1019,18 +1036,36 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
         # Required fields for validation
         required_fields = ['name', 'developer', 'aircraft_manufacturer', 'category', 'price_type']
         
+        # Check if the CSV has the required columns
+        if not csv_reader.fieldnames:
+            raise HTTPException(status_code=400, detail="CSV file appears to be empty or invalid")
+        
+        missing_columns = [field for field in required_fields if field not in csv_reader.fieldnames]
+        if missing_columns:
+            raise HTTPException(status_code=400, detail=f"CSV missing required columns: {', '.join(missing_columns)}")
+        
         for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because header is row 1
             try:
+                # Skip empty rows
+                if not any(row.values()):
+                    continue
+                
+                # Clean and validate row data
+                cleaned_row = {}
+                for key, value in row.items():
+                    if key and value is not None:
+                        cleaned_row[key] = str(value).strip()
+                
                 # Validate required fields
-                missing_fields = [field for field in required_fields if not row.get(field, '').strip()]
+                missing_fields = [field for field in required_fields if not cleaned_row.get(field, '')]
                 if missing_fields:
                     errors.append(f"Row {row_num}: Missing required fields: {', '.join(missing_fields)}")
                     continue
                 
                 # Check for duplicate (same name + developer)
                 existing = aircraft_collection.find_one({
-                    "name": row['name'].strip(),
-                    "developer": row['developer'].strip()
+                    "name": cleaned_row['name'],
+                    "developer": cleaned_row['developer']
                 })
                 if existing:
                     skipped_count += 1
@@ -1038,52 +1073,43 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
                 
                 # Process compatibility field (comma-separated)
                 compatibility = []
-                if row.get('compatibility', '').strip():
-                    compatibility = [c.strip() for c in row['compatibility'].split(',') if c.strip()]
+                if cleaned_row.get('compatibility', ''):
+                    compatibility = [c.strip() for c in cleaned_row['compatibility'].split(',') if c.strip()]
                 
                 # Process features field (comma-separated)
                 features = []
-                if row.get('features', '').strip():
-                    features = [f.strip() for f in row['features'].split(',') if f.strip()]
+                if cleaned_row.get('features', ''):
+                    features = [f.strip() for f in cleaned_row['features'].split(',') if f.strip()]
                 
                 # Process additional_images (comma-separated URLs)
                 additional_images = []
-                if row.get('additional_images', '').strip():
-                    additional_images = [img.strip() for img in row['additional_images'].split(',') if img.strip()]
-                
-                # Parse release_date if provided
-                release_date = None
-                if row.get('release_date', '').strip():
-                    try:
-                        release_date = datetime.strptime(row['release_date'].strip(), '%Y-%m-%d').strftime('%Y-%m-%d')
-                    except ValueError:
-                        errors.append(f"Row {row_num}: Invalid date format in release_date. Use YYYY-MM-DD")
-                        continue
+                if cleaned_row.get('additional_images', ''):
+                    additional_images = [img.strip() for img in cleaned_row['additional_images'].split(',') if img.strip()]
                 
                 # Validate price_type
-                if row['price_type'].strip() not in ['Paid', 'Freeware']:
-                    errors.append(f"Row {row_num}: price_type must be 'Paid' or 'Freeware'")
+                if cleaned_row['price_type'] not in ['Paid', 'Freeware']:
+                    errors.append(f"Row {row_num}: price_type must be 'Paid' or 'Freeware', got '{cleaned_row['price_type']}'")
                     continue
                 
                 # Create aircraft object
                 aircraft_data = {
                     "id": str(uuid.uuid4()),
-                    "name": row['name'].strip(),
-                    "developer": row['developer'].strip(),
-                    "aircraft_manufacturer": row['aircraft_manufacturer'].strip(),
-                    "aircraft_model": row.get('aircraft_model', '').strip(),
-                    "variant": row.get('variant', '').strip(),
-                    "category": row['category'].strip(),
-                    "price_type": row['price_type'].strip(),
-                    "price": row.get('price', '').strip(),
-                    "description": row.get('description', '').strip(),
-                    "image_url": row.get('image_url', '').strip(),
-                    "cockpit_image_url": row.get('cockpit_image_url', '').strip(),
+                    "name": cleaned_row['name'],
+                    "developer": cleaned_row['developer'],
+                    "aircraft_manufacturer": cleaned_row['aircraft_manufacturer'],
+                    "aircraft_model": cleaned_row.get('aircraft_model', ''),
+                    "variant": cleaned_row.get('variant', ''),
+                    "category": cleaned_row['category'],
+                    "price_type": cleaned_row['price_type'],
+                    "price": cleaned_row.get('price', ''),
+                    "description": cleaned_row.get('description', ''),
+                    "image_url": cleaned_row.get('image_url', ''),
+                    "cockpit_image_url": cleaned_row.get('cockpit_image_url', ''),
                     "additional_images": additional_images,
                     "release_date": None,  # Not using release_date from CSV
                     "compatibility": compatibility,
-                    "download_url": row.get('download_url', '').strip(),
-                    "developer_website": row.get('developer_website', '').strip(),
+                    "download_url": cleaned_row.get('download_url', ''),
+                    "developer_website": cleaned_row.get('developer_website', ''),
                     "features": features,
                     "average_rating": 0.0,
                     "total_reviews": 0,
@@ -1098,6 +1124,11 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
                 aircraft_collection.insert_one(aircraft_data)
                 imported_count += 1
                 
+                # Limit to prevent overwhelming the system
+                if imported_count >= 100:
+                    errors.append("Import stopped at 100 aircraft limit")
+                    break
+                
             except Exception as e:
                 errors.append(f"Row {row_num}: {str(e)}")
                 continue
@@ -1105,9 +1136,12 @@ async def bulk_upload_aircraft(request: Request, file: UploadFile = File(...)):
         return {
             "imported_count": imported_count,
             "skipped_count": skipped_count,
-            "errors": errors[:20]  # Limit errors to prevent huge responses
+            "errors": errors[:20],  # Limit errors to prevent huge responses
+            "total_errors": len(errors)
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing CSV: {str(e)}")
 
