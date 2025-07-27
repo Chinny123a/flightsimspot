@@ -1,26 +1,26 @@
-<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+<svg width="400" height="100" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
       .logo-text { 
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', Arial, sans-serif; 
         font-weight: 700; 
         fill: #3B82F6; 
-        font-size: 42px;
+        font-size: 38px;
       }
       .airplane { fill: #3B82F6; }
     </style>
   </defs>
   
-  <!-- Professional Airplane Icon based on your design -->
-  <g class="airplane" transform="translate(10, 20)">
-    <!-- Main fuselage and body -->
-    <path d="M25 30 L5 45 L8 50 L20 45 L15 55 L8 60 L15 65 L25 55 L55 65 L70 45 L60 35 L45 45 L50 25 L55 15 L50 10 L45 15 L40 25 L25 30 Z"/>
-    <!-- Wing details -->
-    <path d="M45 35 L25 40 L35 50 L55 45 L45 35 Z" opacity="0.8"/>
-    <!-- Nose cone -->
-    <ellipse cx="50" cy="25" rx="8" ry="15" opacity="0.6"/>
+  <!-- Professional Airplane Icon inspired by your design -->
+  <g class="airplane" transform="translate(15, 15)">
+    <!-- Main body and wings - sleek aircraft silhouette -->
+    <path d="M35 35 L10 50 L15 55 L30 50 L25 60 L15 68 L25 72 L35 60 L60 70 L75 50 L65 35 L50 50 L55 20 L60 10 L55 8 L50 10 L45 20 L35 35 Z"/>
+    <!-- Wing detail -->
+    <path d="M50 40 L30 45 L40 55 L60 50 L50 40 Z" fill="#60A5FA"/>
+    <!-- Cockpit detail -->
+    <ellipse cx="52" cy="25" rx="6" ry="12" fill="#1D4ED8" opacity="0.7"/>
   </g>
   
   <!-- FlightSimSpot Text -->
-  <text x="90" y="70" class="logo-text">FlightSimSpot</text>
+  <text x="105" y="58" class="logo-text">FlightSimSpot</text>
 </svg>
